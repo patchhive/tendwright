@@ -3705,7 +3705,7 @@ fn init_schema(conn: &Connection) -> rusqlite::Result<()> {
 
         -- Namespaced: patchhive-backend already owns a suite-level `suite_runs`
         -- table with a different schema, and the suite database is shared. New
-        -- product tables must be product-namespaced (CLAUDE.md § SQLite).
+        -- Product tables must be product-namespaced; see AGENTS.md § Data/storage.
         CREATE TABLE IF NOT EXISTS hive_core_product_probes (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           product_slug TEXT NOT NULL,

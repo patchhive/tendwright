@@ -221,7 +221,9 @@ That creates:
 - Product repos can keep subtree-style history.
 - Shared package/service repos should prefer clean mirror syncs.
 - Shared crate repos should prefer clean mirror syncs too.
-- The monorepo's default `.cargo/config.toml` intentionally does not load local shared-crate patches. Use `cargo --config .cargo/local-patches.toml ...` only while actively testing local shared-crate edits against products; exported repos and normal product commands should enforce strict standalone lockfiles.
+- Monorepo Rust packages use local path dependencies through the root Cargo
+  workspace and share its lockfile. Export tooling rewrites those dependencies
+  and generates strict standalone lockfiles for mirror builds.
 - If you want to preview tags without pushing anything, use:
 
 ```bash

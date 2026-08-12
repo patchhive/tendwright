@@ -67,21 +67,10 @@ if [[ "${PATCHHIVE_SMOKE_FRONTEND_DEPS:-0}" == "1" && -f "${PRODUCT_PREFIX}/fron
 fi
 
 TMP_PATHS=()
-LOCKFILE_PATH=""
-ORIGINAL_LOCKFILE=""
-LOCKFILE_EXISTED=0
-RESTORE_LOCKFILE=false
 EXPORT_WORKTREE=""
 cleanup() {
   if [[ -n "$EXPORT_WORKTREE" ]]; then
     git worktree remove --force "$EXPORT_WORKTREE" >/dev/null 2>&1 || true
-  fi
-  if [[ "$RESTORE_LOCKFILE" == true && -n "$LOCKFILE_PATH" ]]; then
-    if [[ "$LOCKFILE_EXISTED" -eq 1 ]]; then
-      cp "$ORIGINAL_LOCKFILE" "$LOCKFILE_PATH"
-    else
-      rm -f "$LOCKFILE_PATH"
-    fi
   fi
   for path in "${TMP_PATHS[@]}"; do
     rm -rf "$path"
@@ -92,26 +81,9 @@ trap cleanup EXIT
 STANDALONE_LOCKFILE=""
 if [[ -f "${PRODUCT_PREFIX}/backend/Cargo.toml" ]]; then
   echo "Refreshing standalone Cargo.lock for ${PRODUCT_NAME} before export..."
-  LOCKFILE_PATH="${PRODUCT_PREFIX}/backend/Cargo.lock"
-  ORIGINAL_LOCKFILE="$(mktemp "/tmp/patchhive-${PRODUCT_NAME}-Cargo.lock-original-XXXXXX")"
   STANDALONE_LOCKFILE="$(mktemp "/tmp/patchhive-${PRODUCT_NAME}-Cargo.lock-standalone-XXXXXX")"
-  TMP_PATHS+=("$ORIGINAL_LOCKFILE" "$STANDALONE_LOCKFILE")
-
-  if [[ -f "$LOCKFILE_PATH" ]]; then
-    cp "$LOCKFILE_PATH" "$ORIGINAL_LOCKFILE"
-    LOCKFILE_EXISTED=1
-  fi
-  RESTORE_LOCKFILE=true
-
-  "$ROOT_DIR/scripts/refresh-product-lockfile.sh" "$PRODUCT_NAME"
-  cp "$LOCKFILE_PATH" "$STANDALONE_LOCKFILE"
-
-  if [[ "$LOCKFILE_EXISTED" -eq 1 ]]; then
-    cp "$ORIGINAL_LOCKFILE" "$LOCKFILE_PATH"
-  else
-    rm -f "$LOCKFILE_PATH"
-  fi
-  RESTORE_LOCKFILE=false
+  TMP_PATHS+=("$STANDALONE_LOCKFILE")
+  "$ROOT_DIR/scripts/refresh-product-lockfile.sh" "$PRODUCT_NAME" --output "$STANDALONE_LOCKFILE"
 fi
 
 SANITIZED_NAME="${PRODUCT_NAME//\//-}"

@@ -149,8 +149,8 @@ change must leave the affected code warning-free:
 - Runtime startup, scan, and product-decision warnings remain valid operator
   evidence; they are distinct from code-quality warnings.
 
-CI should enforce this policy across all standalone Rust packages and active
-frontend packages as the suite verification scripts converge.
+CI enforces this policy across the complete Rust workspace and active frontend
+packages. Standalone export lockfiles are generated separately for mirror CI.
 
 GitHub readiness must be evidence-based across the suite. Token presence is
 configuration, not readiness. Products use the shared authenticated identity

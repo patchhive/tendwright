@@ -28,10 +28,12 @@ What it does:
   2. Replaces placeholders with product-specific values
   3. Generates a mountable Rust engine plus thin standalone launcher
   4. Resolves shared crate and package paths for the generated monorepo location
-  5. Optionally generates a backend Cargo.lock inside the new product
+  5. Optionally refreshes the containing Cargo workspace lockfile
 
 Notes:
   - This is for monorepo-first product creation.
+  - Inside this repository, Cargo updates the authoritative root Cargo.lock.
+    A destination outside the workspace receives its own backend Cargo.lock.
   - Exported standalone repos should still be treated as mirrors of the monorepo.
   - Before the first export, preflight the vendored shared-crate snapshot with
     ./scripts/refresh-product-lockfile.sh <slug>

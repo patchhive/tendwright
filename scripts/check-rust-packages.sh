@@ -1,23 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# PatchHive is intentionally not a single Cargo workspace. Check every
-# standalone Rust package in the shared manifest inventory so CI catches drift
-# across products, services, crates, and local gateway code.
+# All monorepo Rust packages belong to the root workspace. Standalone export
+# lockfiles are release artifacts and are deliberately not CI inputs here.
 
-script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+echo "::group::cargo fmt --all"
+cargo fmt --all -- --check
+echo "::endgroup::"
 
-while IFS= read -r manifest; do
-  [[ -n "${manifest}" ]] || continue
-  echo "::group::cargo fmt ${manifest}"
-  cargo fmt --manifest-path "${manifest}" -- --check
-  echo "::endgroup::"
+echo "::group::cargo clippy --workspace"
+cargo clippy --locked --workspace --all-targets -- -D warnings
+echo "::endgroup::"
 
-  echo "::group::cargo clippy ${manifest}"
-  cargo clippy --locked --all-targets --manifest-path "${manifest}" -- -D warnings
-  echo "::endgroup::"
-
-  echo "::group::cargo test ${manifest}"
-  cargo test --locked --all-targets --manifest-path "${manifest}"
-  echo "::endgroup::"
-done < "${script_dir}/rust-manifests.txt"
+echo "::group::cargo test --workspace"
+cargo test --locked --workspace --all-targets
+echo "::endgroup::"

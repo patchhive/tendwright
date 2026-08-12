@@ -2,8 +2,6 @@
 
 This file is the canonical repo context for every coding agent working in PatchHive.
 Keep it up to date when the architecture, conventions, or product inventory changes.
-`CLAUDE.md` is a shorter Claude Code working summary derived from this file; update
-this file first, then reconcile that summary if it drifts.
 
 When a PatchHive discussion, phone note, email, or external conversation reaches
 a concrete architecture, product, contract, workflow, or safety decision, write
@@ -112,9 +110,10 @@ patchhive/
     release-sentry/
     hive-core/
   package.json              npm workspaces root
+  Cargo.toml                Rust workspace root
+  Cargo.lock                authoritative monorepo Rust lockfile
   README.md
   AGENTS.md                 canonical agent-facing project context
-  CLAUDE.md                 Claude Code working summary; defers to AGENTS.md
 ```
 
 ## Tech Stack
@@ -280,8 +279,20 @@ GitHub Actions:
   to share the cleanup behavior.
 - Rust CodeQL supports source extraction with `build-mode: none`, not manual
   builds. Its analysis enables all Cargo targets and dependency source extraction
-  so dependency macros and call targets resolve across the multi-manifest repo.
-  Keep the strict CI package inventory in `scripts/rust-manifests.txt`.
+  so dependency macros and call targets resolve across the workspace.
+
+Cargo workspace:
+- Every Rust package remains independently runnable and keeps its own
+  `Cargo.toml`, but all monorepo packages are members of the virtual workspace
+  rooted at `/Cargo.toml`.
+- The root `Cargo.lock` is the only authoritative monorepo Rust lockfile. Member
+  lockfiles are generated temporarily for standalone exports and are not tracked.
+- Run repository-wide Rust verification through
+  `./scripts/check-rust-packages.sh`; it formats, lints, and tests the complete
+  workspace with the root lockfile.
+- Workspace membership uses directory globs so adding a crate, service, product
+  backend, or local Rust gateway does not require maintaining a second package
+  inventory.
 
 Backend:
 - Rust

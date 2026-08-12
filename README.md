@@ -94,6 +94,13 @@ cd backend && cargo run
 cd ../frontend && npm install && npm run dev
 ```
 
+All Rust packages are members of the root Cargo workspace and share the tracked
+root `Cargo.lock`. Run the complete Rust quality gate with:
+
+```bash
+./scripts/check-rust-packages.sh
+```
+
 Backends bind to `0.0.0.0` by default for Docker compatibility. For loopback-only local runs, set `PATCHHIVE_BIND_ADDR=127.0.0.1` before starting a backend.
 
 ### Create a New Product

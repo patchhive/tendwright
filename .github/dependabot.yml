@@ -27,17 +27,15 @@ updates:
           - patch
 
   - package-ecosystem: cargo
-    directories:
-      - /crates/*
-      - /services/*
-      - /packages/ai-local/rust-gateway
-      - /products/*/backend
+    directory: /
     schedule:
       interval: weekly
       day: monday
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 5
     groups:
-      rust-dependencies:
+      rust-compatible-updates:
         patterns:
           - "*"
-        group-by: dependency-name
+        update-types:
+          - minor
+          - patch

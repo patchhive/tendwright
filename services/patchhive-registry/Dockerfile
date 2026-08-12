@@ -1,9 +1,10 @@
 FROM rust:1.85-bookworm AS build
 WORKDIR /app
 COPY crates /app/crates
+COPY Cargo.lock /app/services/patchhive-registry/Cargo.lock
 COPY services/patchhive-registry /app/services/patchhive-registry
 WORKDIR /app/services/patchhive-registry
-RUN cargo build --release
+RUN cargo build --release --locked
 
 FROM debian:bookworm-slim
 RUN useradd -r -u 10001 patchhive

@@ -11,6 +11,12 @@ pnpm-debug.log*
 
 # Rust
 target/
+# Workspace members share the tracked root lockfile. Product/crate/service
+# lockfiles are generated only while preparing standalone exports.
+/crates/*/Cargo.lock
+/packages/*/rust-gateway/Cargo.lock
+/products/*/backend/Cargo.lock
+/services/*/Cargo.lock
 
 # Local env / secrets
 .env

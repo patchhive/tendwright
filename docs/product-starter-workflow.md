@@ -41,7 +41,11 @@ The script will:
 3. wire in shared PatchHive auth, specialist UI, and CI
 4. generate a mountable backend engine plus thin standalone launcher
 5. resolve shared package paths for the generated monorepo location
-6. generate an initial backend `Cargo.lock` unless you pass `--skip-lockfile`
+6. refresh the containing Cargo workspace lockfile unless you pass `--skip-lockfile`
+
+Inside Tendwright, the generated backend joins the root Cargo workspace through
+the `products/*/backend` member glob and uses the root `Cargo.lock`. A scaffold
+created outside that workspace receives its own backend lockfile.
 
 Useful flags:
 
@@ -98,8 +102,9 @@ Example:
 ```
 
 This copies the product and current shared crates to a temporary standalone
-layout, rewrites PatchHive-owned dependencies to that snapshot, regenerates
-`backend/Cargo.lock`, and copies the standalone-safe lockfile back.
+layout, rewrites PatchHive-owned dependencies to that snapshot, and verifies
+that a standalone `backend/Cargo.lock` can be generated. Pass
+`--output <path>` only when another release tool needs the generated artifact.
 
 Use it:
 
@@ -107,7 +112,9 @@ Use it:
 - after shared crate dependency changes
 - any time standalone CI says `cargo check --locked` wants to update the lockfile
 
-`export-product.sh` now runs this refresh automatically for Rust-backed products before export, so the helper is mostly useful when you want to preflight the lockfile without exporting yet.
+`export-product.sh` runs this validation automatically for Rust-backed products
+and commits the generated lockfile only to the export branch, so the helper is
+mostly useful when you want to preflight without exporting.
 
 ## Standalone Template Repo
 

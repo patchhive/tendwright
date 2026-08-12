@@ -5,7 +5,7 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  ./scripts/refresh-product-lockfile.sh <product-slug>
+  ./scripts/refresh-product-lockfile.sh <product-slug> [--output <path>]
 
 Example:
   ./scripts/refresh-product-lockfile.sh trust-gate
@@ -15,10 +15,11 @@ What it does:
   2. Copies the current shared-crate snapshot used by standalone exports
   3. Rewrites shared PatchHive dependencies to that snapshot
   4. Regenerates backend/Cargo.lock there without monorepo-only paths
-  5. Copies the standalone-safe lockfile back into the product directory
+  5. Validates the standalone-safe lockfile, or writes it to --output
 
-Use this before the first export, or whenever a product backend or shared crate
-dependency changes and the standalone repo needs a fresh lockfile.
+Use this to preflight a standalone export. Export tooling supplies --output and
+adds the generated lockfile to the standalone mirror; member lockfiles are not
+tracked in the monorepo workspace.
 EOF
 }
 
@@ -32,6 +33,23 @@ if [[ -z "$PRODUCT_NAME" ]]; then
   usage
   exit 1
 fi
+shift
+
+OUTPUT_PATH=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --output)
+      OUTPUT_PATH="${2:-}"
+      [[ -n "$OUTPUT_PATH" ]] || { echo "--output requires a path" >&2; exit 1; }
+      shift 2
+      ;;
+    *)
+      echo "Unknown argument: $1" >&2
+      usage
+      exit 1
+      ;;
+  esac
+done
 
 ROOT_DIR="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 # shellcheck source=scripts/suite-common.sh
@@ -65,6 +83,9 @@ rm -f "$TMP_DIR/product/backend/Cargo.lock"
   cd "$TMP_DIR/product/backend"
   cargo generate-lockfile
 )
-cp "$TMP_DIR/product/backend/Cargo.lock" "$BACKEND_DIR/Cargo.lock"
-
-echo "Refreshed standalone Cargo.lock for $PRODUCT_NAME"
+if [[ -n "$OUTPUT_PATH" ]]; then
+  cp "$TMP_DIR/product/backend/Cargo.lock" "$OUTPUT_PATH"
+  echo "Generated standalone Cargo.lock for $PRODUCT_NAME at $OUTPUT_PATH"
+else
+  echo "Validated standalone Cargo.lock generation for $PRODUCT_NAME"
+fi

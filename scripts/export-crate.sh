@@ -59,24 +59,13 @@ if [[ ! -d "$CRATE_PREFIX" ]]; then
 fi
 
 TMP_PATHS=()
-LOCKFILE_PATH="${CRATE_PREFIX}/Cargo.lock"
-ORIGINAL_LOCKFILE="$(mktemp "/tmp/patchhive-${CRATE_NAME}-Cargo.lock-original-XXXXXX")"
 STANDALONE_LOCKFILE="$(mktemp "/tmp/patchhive-${CRATE_NAME}-Cargo.lock-standalone-XXXXXX")"
-TMP_PATHS+=("$ORIGINAL_LOCKFILE" "$STANDALONE_LOCKFILE")
-LOCKFILE_EXISTED=0
-RESTORE_LOCKFILE=true
+TMP_PATHS+=("$STANDALONE_LOCKFILE")
 EXPORT_WORKTREE=""
 
 cleanup() {
   if [[ -n "$EXPORT_WORKTREE" ]]; then
     git worktree remove --force "$EXPORT_WORKTREE" >/dev/null 2>&1 || true
-  fi
-  if [[ "$RESTORE_LOCKFILE" == true ]]; then
-    if [[ "$LOCKFILE_EXISTED" -eq 1 ]]; then
-      cp "$ORIGINAL_LOCKFILE" "$LOCKFILE_PATH"
-    else
-      rm -f "$LOCKFILE_PATH"
-    fi
   fi
   for path in "${TMP_PATHS[@]}"; do
     rm -rf "$path"
@@ -84,20 +73,8 @@ cleanup() {
 }
 trap cleanup EXIT
 
-if [[ -f "$LOCKFILE_PATH" ]]; then
-  cp "$LOCKFILE_PATH" "$ORIGINAL_LOCKFILE"
-  LOCKFILE_EXISTED=1
-fi
-
 echo "Refreshing standalone Cargo.lock for ${CRATE_NAME} before export..."
-"$ROOT_DIR/scripts/refresh-crate-lockfile.sh" "$CRATE_NAME"
-cp "$LOCKFILE_PATH" "$STANDALONE_LOCKFILE"
-if [[ "$LOCKFILE_EXISTED" -eq 1 ]]; then
-  cp "$ORIGINAL_LOCKFILE" "$LOCKFILE_PATH"
-else
-  rm -f "$LOCKFILE_PATH"
-fi
-RESTORE_LOCKFILE=false
+"$ROOT_DIR/scripts/refresh-crate-lockfile.sh" "$CRATE_NAME" --output "$STANDALONE_LOCKFILE"
 
 SANITIZED_NAME="${CRATE_NAME//\//-}"
 EXPORT_BRANCH="export/crate-${SANITIZED_NAME}"

@@ -227,7 +227,7 @@ fn same_file(left: &Path, right: &Path) -> bool {
 /// bare relative `.env` writes into whatever directory the process happens to be
 /// started from. That is how a stray `services/patchhive-backend/.env` appeared:
 /// the value was loaded from the root file and saved next to the binary, leaving
-/// two secret stores when CLAUDE.md allows exactly one.
+/// two secret stores when the canonical environment policy allows exactly one.
 ///
 /// Returns `None` only outside a monorepo checkout with no explicit override, where
 /// the caller's own default is the best available answer.

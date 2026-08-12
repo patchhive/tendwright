@@ -15,6 +15,36 @@ fail() {
   failures=$((failures + 1))
 }
 
+check_rust_workspace() {
+  require_file "Cargo.toml"
+  require_file "Cargo.lock"
+  require_contains "Cargo.toml" 'members = [' "Cargo workspace members"
+  require_contains "scripts/check-rust-packages.sh" "cargo clippy --locked --workspace" \
+    "workspace-wide warning-free Rust check"
+
+  if [[ -e "scripts/rust-manifests.txt" ]]; then
+    fail "scripts/rust-manifests.txt must not be restored; Cargo workspace globs own Rust package discovery"
+  fi
+
+  local tracked_member_locks
+  tracked_member_locks="$(git ls-files \
+    'crates/*/Cargo.lock' \
+    'packages/*/rust-gateway/Cargo.lock' \
+    'products/*/backend/Cargo.lock' \
+    'services/*/Cargo.lock' | while IFS= read -r lockfile; do
+      if [[ -f "$lockfile" ]]; then
+        printf '%s\n' "$lockfile"
+      fi
+    done)"
+  if [[ -n "$tracked_member_locks" ]]; then
+    fail "workspace member lockfiles must not be tracked: ${tracked_member_locks//$'\n'/, }"
+  fi
+
+  if ! cargo metadata --locked --no-deps --format-version 1 >/dev/null; then
+    fail "root Cargo workspace metadata or lockfile is invalid"
+  fi
+}
+
 if [[ -e "$ROOT_DIR/packages/ui-v3" ]]; then
   fail "packages/ui-v3 must not be restored; packages/ui is the canonical shared UI package"
 fi
@@ -248,6 +278,7 @@ check_github_message_branding() {
 }
 
 check_specialist_theme_inventory
+check_rust_workspace
 check_manifest_routes
 for product in "${PATCHHIVE_PRODUCTS[@]}"; do
   check_product "$product"

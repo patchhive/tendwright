@@ -215,13 +215,15 @@ If you want to push directly to a standalone crate remote:
 
 That creates a subtree export branch from `crates/patchhive-product-core` and can push it directly into a standalone crate repository.
 
-If a shared crate's git dependencies change, refresh its standalone-safe lockfile before exporting:
+If a shared crate's git dependencies change, validate its standalone-safe
+lockfile before exporting:
 
 ```bash
 ./scripts/refresh-crate-lockfile.sh patchhive-github-security
 ```
 
-`export-crate.sh` now runs that refresh automatically before exporting.
+`export-crate.sh` runs that validation automatically and writes the generated
+lockfile only to the standalone export branch.
 
 ## Crate Mirror Sync Script
 

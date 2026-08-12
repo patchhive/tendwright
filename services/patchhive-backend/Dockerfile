@@ -12,10 +12,12 @@ WORKDIR /workspace
 
 # The unified manifest uses path dependencies across the monorepo. Keep the
 # build context at the repository root and copy only Rust inputs.
+COPY Cargo.toml Cargo.lock ./
 COPY crates/patchhive-product-core ./crates/patchhive-product-core
 COPY crates/patchhive-github-data ./crates/patchhive-github-data
 COPY crates/patchhive-github-pr ./crates/patchhive-github-pr
 COPY crates/patchhive-github-security ./crates/patchhive-github-security
+COPY packages/ai-local/rust-gateway ./packages/ai-local/rust-gateway
 COPY products/dep-triage/backend ./products/dep-triage/backend
 COPY products/flake-sting/backend ./products/flake-sting/backend
 COPY products/hive-core/backend ./products/hive-core/backend

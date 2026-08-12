@@ -1,5 +1,3 @@
-# Keep default cargo commands aligned with standalone product repos. Local shared
-# crate overrides are available opt-in through `.cargo/local-patches.toml` when
-# actively developing a shared crate against one or more products.
+# Keep git dependency fetches compatible with the standalone export workflow.
 [net]
 git-fetch-with-cli = true
