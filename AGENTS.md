@@ -211,6 +211,10 @@ patchhive/
   malformed, or contradictory active evidence becomes `unknown` and releases the
   claim instead of disappearing or being reported complete. HiveCore v3 reads and
   polls this durable job rather than holding browser or process-local truth.
+- HiveCore's `db.rs` is the stable persistence facade, not a destination for every
+  domain implementation. Keep bounded persistence domains under
+  `products/hive-core/backend/src/db/` and re-export their public operations from
+  the facade; fleet-launch and suite-run storage already follow this pattern.
 - HiveCore suite bootstrap authority is a non-defaultable tagged state: `ready`,
   `not_configured`, `invalid`, or `unknown`. An externally configured
   `PATCHHIVE_SUITE_BOOTSTRAP_SECRET` is valid authority; otherwise HiveCore may generate one only
