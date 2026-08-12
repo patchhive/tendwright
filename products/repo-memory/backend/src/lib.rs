@@ -63,6 +63,7 @@ use axum::{
 use once_cell::sync::OnceCell;
 use patchhive_product_core::{
     rate_limit::rate_limit_middleware,
+    specialist_routes::{standard_specialist_router, SpecialistRouteHandlers},
     startup::{log_checks, StartupCheck},
 };
 
@@ -81,56 +82,51 @@ pub async fn init_runtime() -> Result<()> {
 }
 
 pub fn router() -> Router {
-    Router::new()
-        .route("/auth/status", get(pipeline::auth_status))
-        .route("/auth/login", post(pipeline::login))
-        .route("/auth/generate-key", post(pipeline::gen_key))
-        .route(
-            "/auth/generate-service-token",
-            post(pipeline::gen_service_token),
-        )
-        .route(
-            "/auth/rotate-service-token",
-            post(pipeline::rotate_service_token),
-        )
-        .route("/health", get(pipeline::health))
-        .route("/startup/checks", get(pipeline::startup_checks_route))
-        .route("/capabilities", get(pipeline::capabilities))
-        .route("/runs", get(pipeline::runs))
-        .route("/runs/:id", get(pipeline::history_detail))
-        .route("/overview", get(pipeline::overview))
-        .route("/repos", get(pipeline::known_repos))
-        .route("/memories", get(pipeline::memories))
-        .route("/memories/curation", post(pipeline::curate_memory))
-        .route(
-            "/failguard/lessons",
-            post(pipeline::capture_failguard_lesson),
-        )
-        .route(
-            "/failguard/candidates",
-            get(pipeline::failguard_candidates).post(pipeline::create_failguard_candidate),
-        )
-        .route("/failguard/guardrails", get(pipeline::failguard_guardrails))
-        .route("/failguard/matches", get(pipeline::failguard_matches))
-        .route(
-            "/failguard/candidates/:id/promote",
-            post(pipeline::promote_failguard_candidate),
-        )
-        .route(
-            "/failguard/candidates/:id/dismiss",
-            post(pipeline::dismiss_failguard_candidate),
-        )
-        .route(
-            "/failguard/candidates/:id/interpret",
-            post(pipeline::retry_failguard_interpretation),
-        )
-        .route("/context", post(pipeline::context))
-        .route("/history", get(pipeline::history))
-        .route("/history/:id", get(pipeline::history_detail))
-        .route("/history/:id/diff", get(pipeline::history_diff))
-        .route("/history/:id/prompt-pack", get(pipeline::prompt_pack))
-        .route("/ingest", post(pipeline::ingest))
-        .layer(middleware::from_fn(auth::auth_middleware))
-        .layer(middleware::from_fn(rate_limit_middleware))
-        .with_state(state::AppState::new())
+    standard_specialist_router(SpecialistRouteHandlers {
+        auth_status: get(pipeline::auth_status),
+        login: post(pipeline::login),
+        generate_key: post(pipeline::gen_key),
+        generate_service_token: post(pipeline::gen_service_token),
+        rotate_service_token: post(pipeline::rotate_service_token),
+        health: get(pipeline::health),
+        startup_checks: get(pipeline::startup_checks_route),
+        capabilities: get(pipeline::capabilities),
+        runs: get(pipeline::runs),
+        run_detail: get(pipeline::history_detail),
+        overview: get(pipeline::overview),
+        history: get(pipeline::history),
+        history_detail: get(pipeline::history_detail),
+    })
+    .route("/repos", get(pipeline::known_repos))
+    .route("/memories", get(pipeline::memories))
+    .route("/memories/curation", post(pipeline::curate_memory))
+    .route(
+        "/failguard/lessons",
+        post(pipeline::capture_failguard_lesson),
+    )
+    .route(
+        "/failguard/candidates",
+        get(pipeline::failguard_candidates).post(pipeline::create_failguard_candidate),
+    )
+    .route("/failguard/guardrails", get(pipeline::failguard_guardrails))
+    .route("/failguard/matches", get(pipeline::failguard_matches))
+    .route(
+        "/failguard/candidates/:id/promote",
+        post(pipeline::promote_failguard_candidate),
+    )
+    .route(
+        "/failguard/candidates/:id/dismiss",
+        post(pipeline::dismiss_failguard_candidate),
+    )
+    .route(
+        "/failguard/candidates/:id/interpret",
+        post(pipeline::retry_failguard_interpretation),
+    )
+    .route("/context", post(pipeline::context))
+    .route("/history/:id/diff", get(pipeline::history_diff))
+    .route("/history/:id/prompt-pack", get(pipeline::prompt_pack))
+    .route("/ingest", post(pipeline::ingest))
+    .layer(middleware::from_fn(auth::auth_middleware))
+    .layer(middleware::from_fn(rate_limit_middleware))
+    .with_state(state::AppState::new())
 }

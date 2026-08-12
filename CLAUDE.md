@@ -197,6 +197,11 @@ products moves here *before* a third copy exists.
   Defaults 300 req/min standard, 30 req/min auth-or-mutating; tune with
   `PATCHHIVE_RATE_LIMIT_MAX`, `PATCHHIVE_RATE_LIMIT_SENSITIVE_MAX`,
   `PATCHHIVE_RATE_LIMIT_WINDOW_SECS`.
+- **`specialist_routes`** — `standard_specialist_router` and
+  `SpecialistRouteHandlers` own the standard specialist auth, health, startup,
+  capabilities, run, overview, and history route surface. Its
+  `STANDARD_SPECIALIST_ROUTE_PATHS` constant also drives manifest/router drift
+  enforcement; do not copy those route literals back into product routers.
 - **`sqlite`** — `SqlitePool::new(path, label).with_pool_size_env("<PREFIX>_DB_POOL_SIZE")`,
   plus `product_db_path(env_var, standalone_default)`, `classify_error`,
   `operator_error_message`, `backup_guidance`, `migration_guidance`. Default pool size 4.

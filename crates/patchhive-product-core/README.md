@@ -9,6 +9,7 @@ It holds the backend behavior that already repeats across products and should st
 - API-key hashing, verification, persistence, and middleware
 - shared auth bootstrap behavior and error shapes
 - auth module generation with `define_api_key_auth_module!`
+- standard specialist auth, health, startup, capabilities, run, overview, and history routing
 - shared SQLite connection pooling with `SqlitePool`
 - typed startup checks and shared startup logging helpers
 - shared cross-product client primitives such as RepoMemory context access

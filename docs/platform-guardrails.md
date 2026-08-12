@@ -181,6 +181,8 @@ unreadable. Never commit these values to the repository.
 Current status:
 
 - RepoReaper already has repo list controls and now supports `allowlist`, `denylist`, and `opt_out`.
-- `patchhive-product-core` provides shared CORS, API-key auth helpers, startup helpers, and API rate limiting for all product backends.
+- `patchhive-product-core` provides shared CORS, API-key auth helpers, startup
+  helpers, API rate limiting, and the standard specialist route surface for
+  product backends.
 - `@patchhive/ai-local` already uses explicit internal contracts for its Rust <-> Node adapter boundary.
 - Cross-product HTTP contracts are still a platform task and should be treated as an early shared-infrastructure requirement, not a cleanup pass for later.

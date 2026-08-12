@@ -1256,7 +1256,9 @@ name = "patchhive-github-data"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "base64",
  "patchhive-product-core",
+ "percent-encoding",
  "reqwest",
  "rusqlite",
  "serde",
@@ -1532,7 +1534,6 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "axum",
- "base64",
  "chrono",
  "once_cell",
  "patchhive-github-data",

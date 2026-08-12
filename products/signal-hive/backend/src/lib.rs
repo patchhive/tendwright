@@ -50,6 +50,9 @@ use axum::{
 };
 use once_cell::sync::OnceCell;
 use patchhive_product_core::rate_limit::rate_limit_middleware;
+use patchhive_product_core::specialist_routes::{
+    standard_specialist_router, SpecialistRouteHandlers,
+};
 use patchhive_product_core::startup::{count_errors, log_checks, StartupCheck};
 use serde_json::json;
 
@@ -74,34 +77,35 @@ pub async fn init_runtime() -> Result<()> {
 }
 
 pub fn router() -> Router {
-    Router::new()
-        .route("/auth/status", get(auth_status))
-        .route("/auth/login", post(login))
-        .route("/auth/generate-key", post(gen_key))
-        .route("/auth/generate-service-token", post(gen_service_token))
-        .route("/auth/rotate-service-token", post(rotate_service_token))
-        .route("/health", get(health))
-        .route("/startup/checks", get(startup_checks_route))
-        .route("/capabilities", get(pipeline::capabilities))
-        .route("/runs", get(pipeline::runs))
-        .route("/runs/:id", get(pipeline::history_detail))
-        .route("/overview", get(pipeline::overview))
-        .route("/smoke", post(pipeline::smoke_check))
-        .route("/presets", get(scan_presets).post(save_scan_preset))
-        .route("/presets/:name", delete(delete_scan_preset))
-        .route("/schedules", get(scan_schedules).post(save_scan_schedule))
-        .route("/schedules/:name", delete(delete_scan_schedule))
-        .route("/schedules/:name/run", post(run_scan_schedule_now))
-        .route("/repo-lists", get(repo_lists).post(add_repo_list))
-        .route("/repo-lists/*repo", delete(remove_repo_list))
-        .route("/scan", post(pipeline::scan))
-        .route("/history", get(pipeline::history))
-        .route("/history/:id", get(pipeline::history_detail))
-        .route("/history/:id/timeline", get(pipeline::timeline))
-        .route("/history/:id/report", get(pipeline::report))
-        .layer(middleware::from_fn(auth::auth_middleware))
-        .layer(middleware::from_fn(rate_limit_middleware))
-        .with_state(AppState::new())
+    standard_specialist_router(SpecialistRouteHandlers {
+        auth_status: get(auth_status),
+        login: post(login),
+        generate_key: post(gen_key),
+        generate_service_token: post(gen_service_token),
+        rotate_service_token: post(rotate_service_token),
+        health: get(health),
+        startup_checks: get(startup_checks_route),
+        capabilities: get(pipeline::capabilities),
+        runs: get(pipeline::runs),
+        run_detail: get(pipeline::history_detail),
+        overview: get(pipeline::overview),
+        history: get(pipeline::history),
+        history_detail: get(pipeline::history_detail),
+    })
+    .route("/smoke", post(pipeline::smoke_check))
+    .route("/presets", get(scan_presets).post(save_scan_preset))
+    .route("/presets/:name", delete(delete_scan_preset))
+    .route("/schedules", get(scan_schedules).post(save_scan_schedule))
+    .route("/schedules/:name", delete(delete_scan_schedule))
+    .route("/schedules/:name/run", post(run_scan_schedule_now))
+    .route("/repo-lists", get(repo_lists).post(add_repo_list))
+    .route("/repo-lists/*repo", delete(remove_repo_list))
+    .route("/scan", post(pipeline::scan))
+    .route("/history/:id/timeline", get(pipeline::timeline))
+    .route("/history/:id/report", get(pipeline::report))
+    .layer(middleware::from_fn(auth::auth_middleware))
+    .layer(middleware::from_fn(rate_limit_middleware))
+    .with_state(AppState::new())
 }
 
 async fn auth_status() -> Json<serde_json::Value> {

@@ -51,6 +51,9 @@ use axum::{
 };
 use once_cell::sync::OnceCell;
 use patchhive_product_core::rate_limit::rate_limit_middleware;
+use patchhive_product_core::specialist_routes::{
+    standard_specialist_router, SpecialistRouteHandlers,
+};
 use patchhive_product_core::startup::{count_errors, log_checks, StartupCheck};
 use serde_json::json;
 
@@ -76,31 +79,32 @@ pub async fn init_runtime() -> Result<()> {
 }
 
 pub fn router() -> Router {
-    Router::new()
-        .route("/auth/status", get(auth_status))
-        .route("/auth/login", post(login))
-        .route("/auth/generate-key", post(gen_key))
-        .route("/auth/generate-service-token", post(gen_service_token))
-        .route("/auth/rotate-service-token", post(rotate_service_token))
-        .route("/health", get(health))
-        .route("/startup/checks", get(startup_checks_route))
-        .route("/capabilities", get(pipeline::capabilities))
-        .route("/runs", get(pipeline::runs))
-        .route("/runs/:id", get(pipeline::history_detail))
-        .route("/overview", get(overview))
-        .route("/rule-packs", get(pipeline::rule_packs))
-        .route("/rules", get(list_rules).post(save_rules))
-        .route("/rules/*repo", delete(delete_rules))
-        .route("/templates", get(list_templates).post(save_templates))
-        .route("/templates/*repo", delete(delete_templates))
-        .route("/review", post(pipeline::review))
-        .route("/review/github/pr", post(pipeline::review_github_pr))
-        .route("/webhooks/github", post(pipeline::github_webhook))
-        .route("/history", get(pipeline::history))
-        .route("/history/:id", get(pipeline::history_detail))
-        .layer(middleware::from_fn(auth::auth_middleware))
-        .layer(middleware::from_fn(rate_limit_middleware))
-        .with_state(AppState::new())
+    standard_specialist_router(SpecialistRouteHandlers {
+        auth_status: get(auth_status),
+        login: post(login),
+        generate_key: post(gen_key),
+        generate_service_token: post(gen_service_token),
+        rotate_service_token: post(rotate_service_token),
+        health: get(health),
+        startup_checks: get(startup_checks_route),
+        capabilities: get(pipeline::capabilities),
+        runs: get(pipeline::runs),
+        run_detail: get(pipeline::history_detail),
+        overview: get(overview),
+        history: get(pipeline::history),
+        history_detail: get(pipeline::history_detail),
+    })
+    .route("/rule-packs", get(pipeline::rule_packs))
+    .route("/rules", get(list_rules).post(save_rules))
+    .route("/rules/*repo", delete(delete_rules))
+    .route("/templates", get(list_templates).post(save_templates))
+    .route("/templates/*repo", delete(delete_templates))
+    .route("/review", post(pipeline::review))
+    .route("/review/github/pr", post(pipeline::review_github_pr))
+    .route("/webhooks/github", post(pipeline::github_webhook))
+    .layer(middleware::from_fn(auth::auth_middleware))
+    .layer(middleware::from_fn(rate_limit_middleware))
+    .with_state(AppState::new())
 }
 
 async fn auth_status() -> Json<serde_json::Value> {

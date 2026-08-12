@@ -88,7 +88,7 @@ patchhive/
     ai-models/              @patchhivehq/ai-models shared AI provider/model selector UX
     ai-local/               @patchhive/ai-local localhost AI gateway
   crates/
-    patchhive-product-core/ shared Rust auth + startup helpers
+    patchhive-product-core/ shared Rust auth + startup + specialist route helpers
     patchhive-github-pr/    shared Rust GitHub PR/diff/check helpers
     patchhive-github-data/  shared Rust GitHub repo/issue/release/content/history/actions reads
     patchhive-github-security/ shared Rust GitHub security/advisory reads
@@ -497,6 +497,11 @@ Rules:
   condition-variable wait in request paths; surface busy evidence or move a
   larger synchronous database unit onto a bounded blocking worker.
 - Product backends should define their `crate::auth` module with `define_api_key_auth_module!` in `main.rs` instead of carrying one-file delegation wrappers.
+- Specialist backends that expose the standard auth, health, startup,
+  capabilities, run, overview, and history surface should build it with
+  `specialist_routes::standard_specialist_router`; keep
+  `STANDARD_SPECIALIST_ROUTE_PATHS` as the single path inventory consumed by
+  manifest/router drift enforcement.
 - Good candidates: auth middleware, SQLite pooling, startup/health helpers,
   generic ID or envelope helpers, generic named preset storage interfaces, and
   the shared schedule request/record, persistence, claim, and result lifecycle.
