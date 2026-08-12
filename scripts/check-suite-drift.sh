@@ -24,6 +24,13 @@ require_file() {
   [[ -f "$path" ]] || fail "missing file: $path"
 }
 
+check_manifest_routes() {
+  require_file "scripts/check-manifest-routes.mjs"
+  if ! node scripts/check-manifest-routes.mjs; then
+    fail "product manifest route claims do not match product routers"
+  fi
+}
+
 require_dir() {
   local path="$1"
   [[ -d "$path" ]] || fail "missing directory: $path"
@@ -241,6 +248,7 @@ check_github_message_branding() {
 }
 
 check_specialist_theme_inventory
+check_manifest_routes
 for product in "${PATCHHIVE_PRODUCTS[@]}"; do
   check_product "$product"
 done

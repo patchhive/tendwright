@@ -11,3 +11,33 @@ updates:
       workflow-actions:
         patterns:
           - "*"
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      npm-compatible-updates:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+
+  - package-ecosystem: cargo
+    directories:
+      - /crates/*
+      - /services/*
+      - /packages/ai-local/rust-gateway
+      - /products/*/backend
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 10
+    groups:
+      rust-dependencies:
+        patterns:
+          - "*"
+        group-by: dependency-name

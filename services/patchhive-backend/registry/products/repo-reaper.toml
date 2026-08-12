@@ -316,3 +316,33 @@ description = "Toggle a scheduled RepoReaper run."
 method = "POST"
 path = "/api/products/repo-reaper/webhook/github"
 description = "Receive GitHub webhooks for watch mode."
+
+[[routes]]
+method = "GET"
+path = "/api/products/repo-reaper/automation/:action_id/schedules"
+description = "List schedules for one RepoReaper action."
+
+[[routes]]
+method = "POST"
+path = "/api/products/repo-reaper/automation/:action_id/schedules"
+description = "Save a schedule for one RepoReaper action."
+
+[[routes]]
+method = "DELETE"
+path = "/api/products/repo-reaper/automation/:action_id/schedules/:name"
+description = "Delete one named RepoReaper action schedule."
+
+[[routes]]
+method = "POST"
+path = "/api/products/repo-reaper/automation/:action_id/schedules/:name/run"
+description = "Run one named RepoReaper action schedule now."
+
+[[routes]]
+method = "POST"
+path = "/api/products/repo-reaper/presets/:name/load"
+description = "Load one saved RepoReaper preset."
+
+[[routes]]
+method = "POST"
+path = "/api/products/repo-reaper/pr-tracking/refresh"
+description = "Refresh all tracked RepoReaper pull requests."

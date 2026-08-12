@@ -177,3 +177,8 @@ description = "Read a SignalHive scan timeline."
 method = "GET"
 path = "/api/products/signal-hive/history/:id/report"
 description = "Read a SignalHive scan report."
+
+[[routes]]
+method = "GET"
+path = "/api/products/signal-hive/overview"
+description = "Read SignalHive dashboard assessment data."
