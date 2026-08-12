@@ -1,7 +1,7 @@
 # ReviewBee by PatchHive
 
 <p align="center">
-  <img src="../../../patchhive3.png" width="120" alt="PatchHive logo" />
+  <img src="../assets/patchhive3.png" width="120" alt="PatchHive logo" />
 </p>
 
 ReviewBee turns pull request review churn into a concrete follow-up checklist. It reads review comments and review threads, separates actionable feedback from noise, groups similar asks, and keeps the current state visible.

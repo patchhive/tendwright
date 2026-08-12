@@ -1,7 +1,7 @@
 # DepTriage
 
 <p align="center">
-  <img src="../../../patchhive3.png" width="120" alt="PatchHive logo" />
+  <img src="../assets/patchhive3.png" width="120" alt="PatchHive logo" />
 </p>
 
 DepTriage turns dependency update noise into a ranked engineering queue. It reads open dependency pull requests, optionally folds in Dependabot alerts, groups activity by package, and recommends `update now`, `watch`, or `ignore for now` — without any AI for the first loop.

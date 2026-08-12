@@ -1,7 +1,7 @@
 # RepoMemory
 
 <p align="center">
-  <img src="../../../patchhive3.png" width="120" alt="PatchHive logo" />
+  <img src="../assets/patchhive3.png" width="120" alt="PatchHive logo" />
 </p>
 
 RepoMemory turns merged history, review feedback, recurring failures, and file hotspots into durable repository knowledge that humans and PatchHive products can reuse.

@@ -1,7 +1,7 @@
 # MergeKeeper
 
 <p align="center">
-  <img src="../../../patchhive3.png" width="120" alt="PatchHive logo" />
+  <img src="../assets/patchhive3.png" width="120" alt="PatchHive logo" />
 </p>
 
 MergeKeeper turns pull request state into a clear merge-readiness decision. It reads reviewer state, unresolved review pressure, commit and check health, and optional PatchHive context, then returns `ready`, `hold`, or `blocked`.

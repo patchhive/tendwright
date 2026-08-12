@@ -1,7 +1,7 @@
 # TrustGate
 
 <p align="center">
-  <img src="../../../patchhive3.png" width="120" alt="PatchHive logo" />
+  <img src="../assets/patchhive3.png" width="120" alt="PatchHive logo" />
 </p>
 
 TrustGate reviews diffs before they move forward. It checks pasted unified diffs or GitHub pull request diffs against repo-specific safety rules, then returns a simple recommendation: `safe`, `warn`, or `block` — with the evidence behind it.

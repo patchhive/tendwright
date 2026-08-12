@@ -1,7 +1,7 @@
 # VulnTriage by PatchHive
 
 <p align="center">
-  <img src="../../../patchhive3.png" width="120" alt="PatchHive logo" />
+  <img src="../assets/patchhive3.png" width="120" alt="PatchHive logo" />
 </p>
 
 VulnTriage turns vulnerability noise into a ranked engineering queue. It reads GitHub code scanning alerts and Dependabot dependency alerts, then prioritises findings by severity, likely impact, ownership hint, and next practical action — so teams can stop treating every security finding like it deserves the same response.

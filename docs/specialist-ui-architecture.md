@@ -51,7 +51,7 @@ primitives directly.
 
 ## Design source and verification
 
-`unified-ui-revamp-main/` remains the executable design reference for tokens,
+`packages/ui/` is the canonical implementation and design reference for tokens,
 typography, spacing, radii, glass surfaces, shadows, backgrounds, motion, and
 responsive behavior. Product screenshots are verification evidence, not a
 replacement implementation source.

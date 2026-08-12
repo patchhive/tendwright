@@ -1,7 +1,7 @@
 # SignalHive
 
 <p align="center">
-  <img src="../../../patchhive3.png" width="120" alt="PatchHive logo" />
+  <img src="../assets/patchhive3.png" width="120" alt="PatchHive logo" />
 </p>
 
 SignalHive is Tendwright's maintenance reconnaissance product. It scans GitHub signals and lightweight code markers to surface stale work, duplicate reports, recurring bug patterns, and hidden maintenance drag before anyone asks for a patch.

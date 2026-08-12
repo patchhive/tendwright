@@ -1,7 +1,7 @@
 # FlakeSting
 
 <p align="center">
-  <img src="../../../patchhive3.png" width="120" alt="PatchHive logo" />
+  <img src="../assets/patchhive3.png" width="120" alt="PatchHive logo" />
 </p>
 
 FlakeSting detects flaky CI behavior before teams normalize unreliable checks.

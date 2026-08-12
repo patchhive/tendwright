@@ -56,7 +56,6 @@ services/
   patchhive-launcher/  localhost-only host-control daemon (Docker/.env mutation for HiveCore)
   patchhive-registry/  opt-in public evidence, community snapshots, and repo opt-outs
 templates/product-starter/scaffold/   source for ./scripts/new-product.sh
-unified-ui-revamp-main/               Lovable project — executable design source for the canonical UI
 docs/                                 start at docs/DOCUMENTATION_MAP.md
 scripts/                              export, mirror, release, drift, lockfile tooling
 ```
@@ -336,9 +335,9 @@ Reuse rule: shared across 2+ products → shared package; product-specific → s
 
 ### Specialist UI rules
 
-`unified-ui-revamp-main/` is executable design source. Use its real component structure,
-tokens, typography, spacing, radii, glass surfaces, shadows, backgrounds, motion, and
-responsive behavior. Do not redraw from screenshots;
+`packages/ui/` is the canonical implementation and design source. Preserve its component
+structure, tokens, typography, spacing, radii, glass surfaces, shadows, backgrounds, motion,
+and responsive behavior. Do not redraw from screenshots;
 Tailwind utilities are correct here — do not translate them back into the older
 CSS-variable-only convention. JSX is fine; TypeScript only when lifting Lovable code
 directly.

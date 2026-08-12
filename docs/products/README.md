@@ -1,7 +1,7 @@
 # Tendwright Product Documentation
 
 <p align="center">
-  <img src="../../patchhive3.png" width="120" alt="Tendwright by PatchHive" />
+  <img src="../assets/patchhive3.png" width="120" alt="Tendwright by PatchHive" />
 </p>
 
 These pages are written as GitHub-facing product docs. They explain what each

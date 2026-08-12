@@ -1,7 +1,7 @@
 # RefactorScout
 
 <p align="center">
-  <img src="../../../patchhive3.png" width="120" alt="Tendwright by PatchHive" />
+  <img src="../assets/patchhive3.png" width="120" alt="Tendwright by PatchHive" />
 </p>
 
 RefactorScout surfaces evidence-ranked structural review candidates before code quality drift turns expensive. It is a read-only scouting product inside PatchHive: it scans local repository paths or public GitHub repositories and ranks signals such as oversized runtime modules, oversized functions, and repeated string usage.

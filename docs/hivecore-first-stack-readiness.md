@@ -1,7 +1,7 @@
 # HiveCore First-Stack Readiness Audit
 
 <p align="center">
-  <img src="../patchhive3.png" width="120" alt="PatchHive logo" />
+  <img src="assets/patchhive3.png" width="120" alt="PatchHive logo" />
 </p>
 
 Updated: May 15, 2026

@@ -1,7 +1,7 @@
 # HiveCore
 
 <p align="center">
-  <img src="../../../patchhive3.png" width="120" alt="Tendwright by PatchHive" />
+  <img src="../assets/patchhive3.png" width="120" alt="Tendwright by PatchHive" />
 </p>
 
 HiveCore is the Tendwright control plane. It brings standalone Tendwright products into one operational interface for health, launch links, shared defaults, run history, capability visibility, action dispatch, and product handoffs.
