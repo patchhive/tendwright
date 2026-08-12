@@ -40,3 +40,8 @@ updates:
         update-types:
           - minor
           - patch
+      rust-breaking-updates:
+        patterns:
+          - "*"
+        update-types:
+          - major
