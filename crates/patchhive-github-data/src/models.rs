@@ -41,7 +41,65 @@ pub struct GitHubRepository {
     #[serde(default)]
     pub open_issues_count: u32,
     #[serde(default)]
+    pub default_branch: String,
+    #[serde(default)]
+    pub archived: bool,
+    #[serde(default)]
+    pub disabled: bool,
+    pub pushed_at: Option<String>,
+    #[serde(default)]
     pub owner: GitHubRepositoryOwner,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct GitHubRelease {
+    #[serde(default)]
+    pub tag_name: String,
+    #[serde(default)]
+    pub name: String,
+    #[serde(default)]
+    pub html_url: String,
+    #[serde(default)]
+    pub draft: bool,
+    #[serde(default)]
+    pub prerelease: bool,
+    pub published_at: Option<String>,
+    #[serde(default)]
+    pub target_commitish: String,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct GitHubTagCommit {
+    #[serde(default)]
+    pub sha: String,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct GitHubTag {
+    #[serde(default)]
+    pub name: String,
+    #[serde(default)]
+    pub zipball_url: String,
+    #[serde(default)]
+    pub tarball_url: String,
+    #[serde(default)]
+    pub commit: GitHubTagCommit,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct GitHubContentFile {
+    #[serde(default)]
+    pub name: String,
+    #[serde(default)]
+    pub path: String,
+    #[serde(default)]
+    pub html_url: String,
+    #[serde(default)]
+    pub download_url: Option<String>,
+    #[serde(default)]
+    pub encoding: String,
+    #[serde(default)]
+    pub content: String,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]

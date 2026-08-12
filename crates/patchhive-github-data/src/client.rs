@@ -1,5 +1,7 @@
 use anyhow::{anyhow, Context, Result};
+use base64::{engine::general_purpose, Engine as _};
 use patchhive_product_core::github_auth::github_read_token;
+use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
 use reqwest::{
     header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, LINK, USER_AGENT},
     Client, Response, StatusCode,
@@ -10,9 +12,9 @@ use serde_json::Value;
 
 use crate::models::{
     GitHubActionsWorkflowJob, GitHubActionsWorkflowRun, GitHubCodeSearchRateLimit,
-    GitHubCodeSearchResponse, GitHubIssue, GitHubPullFile, GitHubPullRequest,
-    GitHubRateLimitResponse, GitHubRepository, GitHubReview, GitHubReviewComment,
-    GitHubSearchRepositoriesResponse,
+    GitHubCodeSearchResponse, GitHubContentFile, GitHubIssue, GitHubPullFile, GitHubPullRequest,
+    GitHubRateLimitResponse, GitHubRelease, GitHubRepository, GitHubReview, GitHubReviewComment,
+    GitHubSearchRepositoriesResponse, GitHubTag,
 };
 use crate::{response_preview, GitHubApiError};
 
@@ -397,6 +399,79 @@ pub async fn fetch_repository(client: &Client, full_name: &str) -> Result<GitHub
     get_public_json(client, &format!("/repos/{full_name}"), &[]).await
 }
 
+pub async fn fetch_releases(client: &Client, repo: &str, limit: u32) -> Result<Vec<GitHubRelease>> {
+    ensure_valid_repo(repo)?;
+
+    get_paginated_json(
+        client,
+        GITHUB_DATA_USER_AGENT,
+        &format!("/repos/{repo}/releases"),
+        &[],
+        github_token().as_deref(),
+        limit.max(1) as usize,
+    )
+    .await
+}
+
+pub async fn fetch_tags(client: &Client, repo: &str, limit: u32) -> Result<Vec<GitHubTag>> {
+    ensure_valid_repo(repo)?;
+
+    get_paginated_json(
+        client,
+        GITHUB_DATA_USER_AGENT,
+        &format!("/repos/{repo}/tags"),
+        &[],
+        github_token().as_deref(),
+        limit.max(1) as usize,
+    )
+    .await
+}
+
+fn encoded_content_path(path: &str) -> Result<String> {
+    let path = path.trim_matches('/');
+    if path.is_empty()
+        || path
+            .split('/')
+            .any(|segment| segment.is_empty() || segment == "." || segment == "..")
+    {
+        return Err(anyhow!(
+            "GitHub content path must contain non-traversing path segments"
+        ));
+    }
+
+    Ok(path
+        .split('/')
+        .map(|segment| utf8_percent_encode(segment, NON_ALPHANUMERIC).to_string())
+        .collect::<Vec<_>>()
+        .join("/"))
+}
+
+pub async fn fetch_content_file(
+    client: &Client,
+    repo: &str,
+    path: &str,
+    branch: &str,
+) -> Result<GitHubContentFile> {
+    ensure_valid_repo(repo)?;
+    let path = encoded_content_path(path)?;
+
+    get_public_json(
+        client,
+        &format!("/repos/{repo}/contents/{path}"),
+        &[("ref", branch.trim().to_string())],
+    )
+    .await
+}
+
+pub fn decode_content(file: &GitHubContentFile) -> Option<String> {
+    if file.encoding != "base64" {
+        return None;
+    }
+    let encoded = file.content.replace(['\n', '\r'], "");
+    let bytes = general_purpose::STANDARD.decode(encoded).ok()?;
+    String::from_utf8(bytes).ok()
+}
+
 pub async fn search_repositories(
     client: &Client,
     query: &str,
@@ -612,6 +687,48 @@ mod tests {
 
         assert_eq!(error.to_string(), REPOSITORY_FORMAT_ERROR);
         ensure_valid_repo("patchhive/repo").expect("valid repository should be accepted");
+    }
+
+    #[test]
+    fn content_paths_are_segment_encoded_without_losing_directories() {
+        assert_eq!(
+            encoded_content_path("/.github/workflows/release.yml/")
+                .expect("valid content path should encode"),
+            "%2Egithub/workflows/release%2Eyml"
+        );
+        assert_eq!(
+            encoded_content_path("docs/release notes #1.md")
+                .expect("reserved characters should encode"),
+            "docs/release%20notes%20%231%2Emd"
+        );
+    }
+
+    #[test]
+    fn content_paths_reject_empty_and_traversing_segments() {
+        for path in ["", "/", "../Cargo.toml", "docs/../Cargo.toml", "docs//file"] {
+            let error = encoded_content_path(path).expect_err("path must be rejected");
+            assert_eq!(
+                error.to_string(),
+                "GitHub content path must contain non-traversing path segments"
+            );
+        }
+    }
+
+    #[test]
+    fn content_decoder_accepts_wrapped_base64_only() {
+        let file = GitHubContentFile {
+            encoding: "base64".into(),
+            content: "aGVs\nbG8=".into(),
+            ..GitHubContentFile::default()
+        };
+        assert_eq!(decode_content(&file).as_deref(), Some("hello"));
+
+        let plain = GitHubContentFile {
+            encoding: "utf-8".into(),
+            content: "hello".into(),
+            ..GitHubContentFile::default()
+        };
+        assert!(decode_content(&plain).is_none());
     }
 
     #[test]

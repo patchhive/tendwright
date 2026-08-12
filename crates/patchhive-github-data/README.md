@@ -8,6 +8,7 @@ It owns the read-heavy GitHub access patterns that recur across visibility and m
 
 - PatchHive-standard GitHub token and env resolution
 - repository fetch and repository search
+- release, tag, and safely encoded repository-content reads
 - issue history and merged pull request history reads
 - review, review comment, and file reads for historical ingestion
 - code search count reads

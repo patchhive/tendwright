@@ -42,7 +42,7 @@ Detailed product documentation lives in [docs/products](docs/products/).
 | `@patchhive/ai-local` | [`patchhive/patchhive-ai-local`](https://github.com/patchhive/patchhive-ai-local) | Local OpenAI-compatible gateway for Codex, Copilot, and future providers. |
 | `patchhive-product-core` | [`patchhive/patchhive-product-core`](https://github.com/patchhive/patchhive-product-core) | Shared Rust auth, startup, and cross-product service primitives. |
 | `patchhive-github-pr` | [`patchhive/patchhive-github-pr`](https://github.com/patchhive/patchhive-github-pr) | Shared Rust pull request, webhook, check, and comment plumbing. |
-| `patchhive-github-data` | [`patchhive/patchhive-github-data`](https://github.com/patchhive/patchhive-github-data) | Shared Rust repo, issue, PR history, and Actions data client. |
+| `patchhive-github-data` | [`patchhive/patchhive-github-data`](https://github.com/patchhive/patchhive-github-data) | Shared Rust repo, issue, release, content, PR history, and Actions data client. |
 | `patchhive-github-security` | [`patchhive/patchhive-github-security`](https://github.com/patchhive/patchhive-github-security) | Shared Rust security and advisory data client. |
 | Product Starter | [`patchhive/patchhive-product-starter`](https://github.com/patchhive/patchhive-product-starter) | Monorepo-first starter for new PatchHive products. |
 

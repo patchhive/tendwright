@@ -90,7 +90,7 @@ patchhive/
   crates/
     patchhive-product-core/ shared Rust auth + startup helpers
     patchhive-github-pr/    shared Rust GitHub PR/diff/check helpers
-    patchhive-github-data/  shared Rust GitHub repo/issue/history/actions reads
+    patchhive-github-data/  shared Rust GitHub repo/issue/release/content/history/actions reads
     patchhive-github-security/ shared Rust GitHub security/advisory reads
   templates/
     product-starter/        shared starter for new PatchHive products

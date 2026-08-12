@@ -164,10 +164,9 @@ back here instead of living in parallel long-term.
 - Revisit a generic shared preset helper when a third product needs the same named-config pattern.
 - Revisit more `patchhive-product-core` helpers only after another backend repeats the same seam.
 - Use `patchhive-github-pr` for the next product that needs PR diff fetch, webhook verification, check/status publishing, or maintained PR comments.
-- Use `patchhive-github-data` for the next product that needs GitHub repo search, issue history, merged PR history, review/comment history, or Actions reads.
-- If repository profiling creates a second need for GitHub tree, manifest, or
-  pinned-content reads, extract those reads into `patchhive-github-data` instead
-  of copying ReleaseSentry's product-local content client.
+- Use `patchhive-github-data` for the next product that needs GitHub repo search,
+  releases, tags, repository content, issue or PR history, review/comment history,
+  or Actions reads.
 - Use `patchhive-github-security` for the next product that needs code scanning alerts, Dependabot alerts, or advisory metadata.
 - Consider LiteLLM later only as an optional upstream behind `patchhive-ai-local`, not as the product-facing contract.
 - Add a `ph` CLI later so PatchHive’s analysis layer can be used locally without running the full platform: `ph scan`, `ph triage`, `ph review`, and `ph check`.

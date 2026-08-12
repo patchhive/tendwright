@@ -48,7 +48,7 @@ packages/
   ai-local/         @patchhive/ai-local          localhost OpenAI-compatible gateway (+ rust-gateway)
 crates/
   patchhive-product-core/      auth, sqlite, startup, contract, scheduling, secrets, policy
-  patchhive-github-data/       repo/issue/PR-history/Actions reads
+  patchhive-github-data/       repo/issue/release/content/PR-history/Actions reads
   patchhive-github-pr/         PR lifecycle: diffs, webhooks, checks, managed comments
   patchhive-github-security/   code scanning + Dependabot + advisory reads
 services/
@@ -254,7 +254,8 @@ products moves here *before* a third copy exists.
   DiscoveryRequest, DiscoveryOutcome}` (policy-filtered autonomous discovery);
   `GH_API`, `request_headers`, `valid_repo`, `get_json`,
   `get_paginated_json`, `get_cursor_paginated_json`, `get_paginated_field_json`,
-  `fetch_repository`, `search_repositories`, `fetch_issues`, `fetch_pull_requests`,
+  `fetch_repository`, `fetch_releases`, `fetch_tags`, `fetch_content_file`, `decode_content`,
+  `search_repositories`, `fetch_issues`, `fetch_pull_requests`,
   `search_merged_pull_requests`, `search_closed_issues`, `fetch_pull_reviews`,
   `fetch_pull_review_comments`, `fetch_pull_files`, `code_search_count`,
   `fetch_workflow_runs`, `fetch_workflow_jobs`, plus `GitHubApiError` classification helpers

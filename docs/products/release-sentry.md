@@ -439,7 +439,7 @@ release-sentry/
 
 - **Axum** — HTTP server and routing
 - **patchhive-product-core** — Auth macros, SQLite pool, startup checks, rate limiting, CORS
-- **patchhive-github-data** — Shared GitHub API client, workflow/issue models
+- **patchhive-github-data** — Shared GitHub repository, release, tag, content, workflow, and issue client/models
 - **reqwest** — HTTP client to GitHub REST API
 - **rusqlite** — SQLite driver
 - **serde / serde_json** — Serialization
