@@ -14,7 +14,7 @@ path = "src/lib.rs"
 
 [dependencies]
 anyhow = "1"
-base64 = "0.22"
+base64 = "0.23"
 patchhive-product-core = { path = "../patchhive-product-core" }
 percent-encoding = "2"
 rusqlite = { version = "0.31", features = ["bundled"] }
