@@ -13,7 +13,7 @@
     "@patchhivehq/ai-models": "file:../../../packages/ai-models",
     "@patchhivehq/product-shell": "file:../../../packages/product-shell",
     "@patchhivehq/ui": "file:../../../packages/ui",
-    "lucide-react": "^0.575.0",
+    "lucide-react": "^1.31.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
