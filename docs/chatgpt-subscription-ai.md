@@ -60,9 +60,9 @@ backend shutdown stops only the child process it owns. Set
 `PATCHHIVE_AI_AUTOSTART=false` when another process manager owns the gateway.
 Direct `npm run start:ai-local` remains available for standalone products.
 
-The Node compatibility gateway also supports this path. It requires
-`PATCHHIVE_AI_GATEWAY_API_KEY`; the Rust gateway requires that key whenever it
-is bound beyond loopback.
+The Node compatibility gateway also supports this path. Both gateways require
+`PATCHHIVE_AI_GATEWAY_API_KEY`, including on loopback, so browser and local
+process boundaries do not become implicit execution authority.
 
 To require subscription-backed Codex rather than permit provider fallback:
 

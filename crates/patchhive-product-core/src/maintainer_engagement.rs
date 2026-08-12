@@ -56,7 +56,16 @@ pub fn classify_maintainer_message(body: &str, review_state: Option<&str>) -> Ma
             "responsible disclosure",
             "private disclosure",
             "cve-",
-            "exploit",
+            "proof of concept",
+            "proof-of-concept",
+            "working exploit",
+            "actively exploited",
+            "can be exploited",
+            "exploitable",
+            "remote code execution",
+            "privilege escalation",
+            "credential exposure",
+            "credentials can be exposed",
         ],
     ) {
         return MaintainerIntent::SecurityReport;
@@ -204,5 +213,34 @@ mod tests {
             classify_maintainer_message("I have some thoughts", None),
             MaintainerIntent::Unknown
         );
+    }
+
+    #[test]
+    fn incidental_exploit_word_does_not_pause_the_repository() {
+        assert_eq!(
+            classify_maintainer_message(
+                "Please exploit the existing hook instead of adding another abstraction.",
+                None,
+            ),
+            MaintainerIntent::Unknown
+        );
+    }
+
+    #[test]
+    fn credible_security_language_still_pauses_the_repository() {
+        for message in [
+            "This is a security vulnerability; please contact us privately.",
+            "I have a working exploit for remote code execution.",
+            "User credentials can be exposed through this endpoint.",
+            "This is CVE-2026-12345.",
+        ] {
+            let intent = classify_maintainer_message(message, None);
+            assert_eq!(intent, MaintainerIntent::SecurityReport, "{message}");
+            assert_eq!(
+                intent.disposition(),
+                EngagementDisposition::PauseRepository,
+                "{message}"
+            );
+        }
     }
 }

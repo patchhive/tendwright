@@ -62,8 +62,8 @@ Key environment variables include:
 - `PATCHHIVE_AI_HOST`
 - `PATCHHIVE_AI_PORT`
 - `PATCHHIVE_AI_PROVIDER_ORDER`
-- `PATCHHIVE_AI_GATEWAY_API_KEY` (required by the Node gateway and callers;
-  required by the Rust gateway when it binds beyond loopback)
+- `PATCHHIVE_AI_GATEWAY_API_KEY` (required by both gateways and every caller,
+  including on loopback)
 - `PATCHHIVE_AI_ADAPTER_POOL_SIZE` (Rust gateway, default `2`, clamped to `1-8`)
 - `PATCHHIVE_AI_TIMEOUT_MS`
 - `PATCHHIVE_AI_CODEX_CLI_PATH` (only when `codex` is not on `PATH`)
@@ -83,7 +83,9 @@ requests; a timed-out process is restarted before it serves more work.
 `GET /health` reports redacted, typed provider auth evidence. Codex auth states
 are `authenticated`, `not_authenticated`, `failed`, and `not_observed`, with a
 separate mode such as `chatgpt_subscription`; an unavailable probe is never
-reported as a successful or definitively logged-out boolean.
+reported as a successful or definitively logged-out boolean. Both gateway
+implementations report the stable `patchhive-ai-local` gateway identity and
+identify their runtime separately as `node` or `rust`.
 
 ## Repository Model
 

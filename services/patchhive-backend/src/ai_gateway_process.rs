@@ -5,6 +5,8 @@ use patchhive_product_core::ai_gateway::AiGatewayConfiguration;
 use serde_json::Value;
 use tokio::{process::Child, time::sleep};
 
+const PATCHHIVE_AI_GATEWAY_ID: &str = "patchhive-ai-local";
+
 pub struct LocalAiGatewayProcess {
     child: Option<Child>,
 }
@@ -118,15 +120,13 @@ async fn gateway_ready(http: &reqwest::Client, configuration: &AiGatewayConfigur
             .json::<Value>()
             .await
             .ok()
-            .and_then(|payload| {
-                payload
-                    .get("gateway")
-                    .and_then(Value::as_str)
-                    .map(str::to_owned)
-            })
-            .is_some_and(|gateway| gateway == "patchhive-ai-local"),
+            .is_some_and(|payload| gateway_identity_matches(&payload)),
         _ => false,
     }
+}
+
+fn gateway_identity_matches(payload: &Value) -> bool {
+    payload.get("gateway").and_then(Value::as_str) == Some(PATCHHIVE_AI_GATEWAY_ID)
 }
 
 fn ai_gateway_cli() -> Result<PathBuf> {
@@ -181,5 +181,20 @@ mod tests {
     #[test]
     fn invalid_autostart_is_rejected() {
         assert!(parse_autostart(Some("sometimes")).is_err());
+    }
+
+    #[test]
+    fn readiness_uses_the_stable_gateway_identity_across_implementations() {
+        for implementation in ["node", "rust"] {
+            assert!(gateway_identity_matches(&serde_json::json!({
+                "gateway": PATCHHIVE_AI_GATEWAY_ID,
+                "gateway_implementation": implementation,
+            })));
+        }
+
+        assert!(!gateway_identity_matches(&serde_json::json!({
+            "gateway": "unrelated-local-service",
+            "gateway_implementation": "rust",
+        })));
     }
 }

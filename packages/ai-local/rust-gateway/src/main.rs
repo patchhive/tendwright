@@ -35,6 +35,8 @@ const CONTROL_TIMEOUT_MS: u64 = 10_000;
 const DEFAULT_ADAPTER_POOL_SIZE: usize = 2;
 const MAX_ADAPTER_POOL_SIZE: usize = 8;
 const DEFAULT_PROVIDER_ORDER: &[&str] = &["codex", "copilot"];
+const GATEWAY_ID: &str = "patchhive-ai-local";
+const GATEWAY_IMPLEMENTATION: &str = "rust";
 
 #[derive(Clone)]
 struct AppState {
@@ -42,7 +44,7 @@ struct AppState {
     provider_order: Vec<String>,
     base_url_hint: String,
     response_counter: Arc<AtomicU64>,
-    gateway_api_key: Option<String>,
+    gateway_api_key: String,
 }
 
 struct AdapterClient {
@@ -243,16 +245,8 @@ async fn main() -> Result<()> {
         .ok()
         .and_then(|value| value.parse::<u16>().ok())
         .unwrap_or(8787);
-    let gateway_api_key = std::env::var("PATCHHIVE_AI_GATEWAY_API_KEY")
-        .ok()
-        .map(|value| value.trim().to_string())
-        .filter(|value| !value.is_empty());
-
-    if !host_is_local(&host) && gateway_api_key.is_none() {
-        return Err(anyhow!(
-            "PATCHHIVE_AI_GATEWAY_API_KEY is required when PATCHHIVE_AI_HOST binds to a non-local address"
-        ));
-    }
+    let gateway_api_key =
+        required_gateway_api_key(std::env::var("PATCHHIVE_AI_GATEWAY_API_KEY").ok())?;
 
     let mut adapters = HashMap::new();
     adapters.insert("codex".to_string(), Arc::new(spawn_adapter("codex").await?));
@@ -286,7 +280,7 @@ async fn main() -> Result<()> {
         .await
         .with_context(|| format!("failed to bind Rust gateway on {host}:{port}"))?;
 
-    info!("patchhive-ai-local-rust listening on http://{host}:{port}");
+    info!("{GATEWAY_ID} ({GATEWAY_IMPLEMENTATION}) listening on http://{host}:{port}");
     axum::serve(listener, app).await?;
     Ok(())
 }
@@ -337,7 +331,8 @@ async fn health(State(state): State<AppState>, headers: HeaderMap) -> impl IntoR
 
     Json(json!({
         "ok": any_ok,
-        "gateway": "patchhive-ai-local-rust",
+        "gateway": GATEWAY_ID,
+        "gateway_implementation": GATEWAY_IMPLEMENTATION,
         "provider_order": state.provider_order,
         "providers": providers,
         "base_url_hint": state.base_url_hint,
@@ -573,18 +568,34 @@ async fn complete_with_fallback(
     Err(CompletionFailure { message, attempts })
 }
 
-fn host_is_local(host: &str) -> bool {
-    matches!(host.trim(), "127.0.0.1" | "localhost" | "::1" | "[::1]")
+fn required_gateway_api_key(value: Option<String>) -> Result<String> {
+    value
+        .map(|value| value.trim().to_owned())
+        .filter(|value| !value.is_empty())
+        .ok_or_else(|| {
+            anyhow!("PATCHHIVE_AI_GATEWAY_API_KEY is required for the Rust local AI gateway")
+        })
+}
+
+fn constant_time_secret_eq(left: &str, right: &str) -> bool {
+    let left = left.as_bytes();
+    let right = right.as_bytes();
+    if left.len() != right.len() {
+        return false;
+    }
+
+    left.iter()
+        .zip(right.iter())
+        .fold(0_u8, |difference, (left, right)| {
+            difference | (left ^ right)
+        })
+        == 0
 }
 
 fn authorize_request(
     state: &AppState,
     headers: &HeaderMap,
 ) -> std::result::Result<(), Box<axum::response::Response>> {
-    let Some(expected) = state.gateway_api_key.as_deref() else {
-        return Ok(());
-    };
-
     let provided = headers
         .get("x-api-key")
         .or_else(|| headers.get("authorization"))
@@ -592,7 +603,7 @@ fn authorize_request(
         .map(|value| value.trim_start_matches("Bearer ").trim())
         .unwrap_or("");
 
-    if provided == expected {
+    if !provided.is_empty() && constant_time_secret_eq(provided, &state.gateway_api_key) {
         Ok(())
     } else {
         Err(Box::new(
@@ -1164,9 +1175,12 @@ fn unix_timestamp() -> u64 {
 #[cfg(test)]
 mod tests {
     use super::{
-        bounded_timeout_ms, AdapterAuthMode, AdapterAuthStatus, AdapterHealth, DEFAULT_TIMEOUT_MS,
+        authorize_request, bounded_timeout_ms, constant_time_secret_eq, required_gateway_api_key,
+        AdapterAuthMode, AdapterAuthStatus, AdapterHealth, AppState, DEFAULT_TIMEOUT_MS,
         MAX_TIMEOUT_MS, MIN_TIMEOUT_MS,
     };
+    use axum::http::{HeaderMap, HeaderValue, StatusCode};
+    use std::{collections::HashMap, sync::Arc};
 
     #[test]
     fn completion_deadlines_are_always_bounded() {
@@ -1220,5 +1234,72 @@ mod tests {
             health.auth.map(|auth| auth.status),
             Some(AdapterAuthStatus::Failed)
         ));
+    }
+
+    #[test]
+    fn copilot_health_uses_the_shared_access_token_mode() {
+        let health: AdapterHealth = serde_json::from_value(serde_json::json!({
+            "ok": true,
+            "adapter": "copilot",
+            "logged_in": true,
+            "auth": {
+                "status": "authenticated",
+                "mode": "access_token",
+                "managed_by": "copilot"
+            },
+            "auth_mode": "logged_in_user",
+            "models": ["gpt-5"]
+        }))
+        .expect("typed Copilot auth health should decode");
+
+        let auth = health.auth.expect("auth observation should be present");
+        assert!(matches!(auth.status, AdapterAuthStatus::Authenticated));
+        assert!(matches!(auth.mode, Some(AdapterAuthMode::AccessToken)));
+    }
+
+    #[test]
+    fn rust_gateway_requires_a_scoped_key_on_every_bind_address() {
+        assert!(required_gateway_api_key(None).is_err());
+        assert!(required_gateway_api_key(Some("   ".into())).is_err());
+        assert_eq!(
+            required_gateway_api_key(Some("  scoped-secret  ".into()))
+                .expect("non-empty key should be accepted"),
+            "scoped-secret"
+        );
+    }
+
+    #[test]
+    fn gateway_secret_comparison_rejects_length_and_value_mismatches() {
+        assert!(constant_time_secret_eq("scoped-secret", "scoped-secret"));
+        assert!(!constant_time_secret_eq("scoped-secret", "scoped-secreu"));
+        assert!(!constant_time_secret_eq("scoped-secret", "short"));
+    }
+
+    #[test]
+    fn gateway_authorization_accepts_only_the_configured_key() {
+        let state = AppState {
+            adapters: HashMap::new(),
+            provider_order: Vec::new(),
+            base_url_hint: "http://127.0.0.1:8787/v1".into(),
+            response_counter: Arc::new(Default::default()),
+            gateway_api_key: "scoped-secret".into(),
+        };
+
+        let missing = authorize_request(&state, &HeaderMap::new())
+            .expect_err("missing credentials must be rejected");
+        assert_eq!(missing.status(), StatusCode::UNAUTHORIZED);
+
+        let mut wrong = HeaderMap::new();
+        wrong.insert("x-api-key", HeaderValue::from_static("wrong-secret"));
+        let wrong =
+            authorize_request(&state, &wrong).expect_err("incorrect credentials must be rejected");
+        assert_eq!(wrong.status(), StatusCode::UNAUTHORIZED);
+
+        let mut bearer = HeaderMap::new();
+        bearer.insert(
+            "authorization",
+            HeaderValue::from_static("Bearer scoped-secret"),
+        );
+        authorize_request(&state, &bearer).expect("configured bearer must be accepted");
     }
 }

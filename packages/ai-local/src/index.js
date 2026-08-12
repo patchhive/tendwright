@@ -10,6 +10,7 @@ import {
   legacyLoggedIn,
   probeCodexAuth,
 } from "../adapters/codex/auth.js";
+import { copilotCredentialMode } from "./auth-contract.js";
 
 const DEFAULT_TIMEOUT_MS = 120_000;
 const DEFAULT_MAX_BODY_BYTES = 1_048_576;
@@ -351,7 +352,7 @@ class CopilotAdapter {
         logged_in: authenticated,
         auth: {
           status: authenticated ? "authenticated" : "not_authenticated",
-          mode: status?.authType ? "logged_in_user" : null,
+          mode: copilotCredentialMode(authenticated),
           managed_by: "copilot",
           reason: authenticated ? undefined : "login_required",
         },
@@ -472,6 +473,7 @@ export function createGateway(config = resolveGatewayConfig()) {
       writeJson(res, 200, {
         ok: Object.values(providers).some(provider => provider.ok),
         gateway: "patchhive-ai-local",
+        gateway_implementation: "node",
         provider_order: config.providerOrder,
         providers,
         base_url_hint: `http://${config.host}:${config.port}/v1`,

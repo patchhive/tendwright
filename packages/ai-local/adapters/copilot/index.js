@@ -212,24 +212,37 @@ async function getHealth() {
   try {
     const activeClient = await getClient();
     const auth = await activeClient.getAuthStatus();
+    const authenticated = Boolean(auth?.isAuthenticated);
     return {
-      ok: Boolean(auth?.isAuthenticated),
+      ok: authenticated,
       adapter: "copilot",
-      logged_in: Boolean(auth?.isAuthenticated),
+      logged_in: authenticated,
+      auth: {
+        status: authenticated ? "authenticated" : "not_authenticated",
+        mode: authenticated ? "access_token" : null,
+        managed_by: "copilot",
+        reason: authenticated ? undefined : "login_required",
+      },
       auth_mode: authMode(),
       auth_type: auth?.authType || null,
       models: await getModels(),
-      error: auth?.isAuthenticated ? null : (auth?.statusMessage || "GitHub Copilot is not authenticated."),
+      error: authenticated ? null : (auth?.statusMessage || "GitHub Copilot is not authenticated."),
       login: auth?.login || null,
       config_dir: configuredConfigDir,
-      bootstrap_hint: auth?.isAuthenticated ? null : bootstrapHint(),
+      bootstrap_hint: authenticated ? null : bootstrapHint(),
     };
   } catch (error) {
     const normalizedError = normalizeCopilotError(error);
     return {
       ok: false,
       adapter: "copilot",
-      logged_in: false,
+      logged_in: null,
+      auth: {
+        status: "failed",
+        mode: null,
+        managed_by: "copilot",
+        reason: "probe_failed",
+      },
       auth_mode: authMode(),
       auth_type: null,
       models: fallbackModels,

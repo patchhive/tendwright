@@ -407,6 +407,9 @@ typography scale, spacing system, or theme implementation.
   only gateway/provider selection, keep auth state typed and redacted, and may
   use the gateway standalone without HiveCore. See
   [docs/chatgpt-subscription-ai.md](docs/chatgpt-subscription-ai.md).
+- Both local gateway implementations require `PATCHHIVE_AI_GATEWAY_API_KEY`,
+  even on loopback, and expose one stable gateway identity with separate
+  Node/Rust implementation evidence.
 - RepoReaper exposes this as the first-class `codex` Squad provider labeled
   **Codex (ChatGPT subscription)**. It requires authenticated Codex gateway
   evidence, explicitly pins calls to that adapter, and never accepts or stores

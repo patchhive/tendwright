@@ -309,6 +309,10 @@ AI provider integration:
   `not_authenticated`, `failed`, and `not_observed` separately, plus the
   credential mode; compatibility `logged_in` output is derived as
   `true`/`false`/`null`, never a reassuring boolean after a failed probe.
+- Both `@patchhive/ai-local` gateway implementations require the scoped
+  `PATCHHIVE_AI_GATEWAY_API_KEY`, including on loopback. They expose the stable
+  `patchhive-ai-local` health identity and report Node or Rust as separate
+  implementation evidence; implementation choice must not change supervision.
 - The Rust `@patchhive/ai-local` gateway clamps completion deadlines to 1-300
   seconds and uses a bounded per-provider adapter-process pool (default 2,
   configurable to 1-8). A timed-out process is restarted; do not restore a
