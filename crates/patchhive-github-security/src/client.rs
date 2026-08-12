@@ -7,14 +7,20 @@ use reqwest::Client;
 
 use crate::models::{GitHubCodeScanningAlert, GitHubDependabotAlert};
 
+fn validate_security_repo(repo: &str) -> Result<()> {
+    if valid_repo(repo) {
+        Ok(())
+    } else {
+        Err(anyhow!("Repository must be in owner/name format"))
+    }
+}
+
 pub async fn fetch_code_scanning_alerts(
     client: &Client,
     repo: &str,
     limit: u32,
 ) -> Result<Vec<GitHubCodeScanningAlert>> {
-    if !valid_repo(repo) {
-        return Err(anyhow!("Repository must be in owner/name format"));
-    }
+    validate_security_repo(repo)?;
 
     let token = github_token();
     get_paginated_json(
@@ -37,9 +43,7 @@ pub async fn fetch_dependabot_alerts(
     repo: &str,
     limit: u32,
 ) -> Result<Vec<GitHubDependabotAlert>> {
-    if !valid_repo(repo) {
-        return Err(anyhow!("Repository must be in owner/name format"));
-    }
+    validate_security_repo(repo)?;
 
     let token = github_token_required()?;
     get_cursor_paginated_json(
@@ -51,4 +55,26 @@ pub async fn fetch_dependabot_alerts(
         limit.max(1) as usize,
     )
     .await
+}
+
+#[cfg(test)]
+mod tests {
+    use super::validate_security_repo;
+
+    #[test]
+    fn repository_validation_accepts_only_owner_name_pairs() {
+        assert!(validate_security_repo("patchhive/tendwright").is_ok());
+
+        for invalid in [
+            "",
+            "tendwright",
+            "/tendwright",
+            "patchhive/",
+            "patchhive/tendwright/extra",
+            "patch hive/tendwright",
+        ] {
+            let error = validate_security_repo(invalid).expect_err("repository must be rejected");
+            assert_eq!(error.to_string(), "Repository must be in owner/name format");
+        }
+    }
 }

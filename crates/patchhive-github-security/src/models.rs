@@ -153,3 +153,101 @@ pub struct GitHubCodeLocation {
     #[serde(default)]
     pub start_line: u32,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{GitHubCodeScanningAlert, GitHubDependabotAlert};
+    use serde_json::json;
+
+    #[test]
+    fn dependabot_alert_preserves_nested_security_evidence() {
+        let alert: GitHubDependabotAlert = serde_json::from_value(json!({
+            "number": 17,
+            "html_url": "https://github.com/patchhive/tendwright/security/dependabot/17",
+            "created_at": "2026-08-11T12:00:00Z",
+            "updated_at": "2026-08-12T12:00:00Z",
+            "dependency": {
+                "package": { "ecosystem": "cargo", "name": "example-crate" },
+                "manifest_path": "Cargo.toml",
+                "scope": "runtime"
+            },
+            "security_advisory": {
+                "ghsa_id": "GHSA-1234-5678-9012",
+                "cve_id": "CVE-2026-12345",
+                "summary": "Representative advisory",
+                "severity": "high",
+                "cwes": [{ "cwe_id": "CWE-79" }],
+                "references": [{ "url": "https://example.test/advisory" }],
+                "epss": { "percentage": 0.42 }
+            },
+            "security_vulnerability": {
+                "severity": "high",
+                "vulnerable_version_range": "< 2.0.0",
+                "package": { "ecosystem": "cargo", "name": "example-crate" },
+                "first_patched_version": { "identifier": "2.0.0" }
+            }
+        }))
+        .expect("representative Dependabot alert should decode");
+
+        assert_eq!(alert.number, 17);
+        assert_eq!(alert.dependency.package.name, "example-crate");
+        assert_eq!(alert.security_advisory.cwes[0].cwe_id, "CWE-79");
+        assert_eq!(
+            alert
+                .security_advisory
+                .epss
+                .expect("EPSS should be present")
+                .percentage,
+            0.42
+        );
+        assert_eq!(
+            alert
+                .security_vulnerability
+                .first_patched_version
+                .expect("patched version should be present")
+                .identifier,
+            "2.0.0"
+        );
+    }
+
+    #[test]
+    fn code_scanning_alert_preserves_ref_and_location() {
+        let alert: GitHubCodeScanningAlert = serde_json::from_value(json!({
+            "number": 9,
+            "rule": {
+                "id": "rust/sql-injection",
+                "name": "SQL injection",
+                "description": "Untrusted SQL input",
+                "severity": "error",
+                "security_severity_level": "high",
+                "tags": ["security", "external/cwe/cwe-89"]
+            },
+            "tool": { "name": "CodeQL" },
+            "most_recent_instance": {
+                "ref": "refs/heads/main",
+                "message": { "text": "Query built from untrusted input" },
+                "location": { "path": "src/db.rs", "start_line": 41 },
+                "classifications": ["test"]
+            }
+        }))
+        .expect("representative code-scanning alert should decode");
+
+        assert_eq!(alert.rule.security_severity_level, "high");
+        assert_eq!(alert.tool.name, "CodeQL");
+        assert_eq!(alert.most_recent_instance.ref_, "refs/heads/main");
+        assert_eq!(alert.most_recent_instance.location.path, "src/db.rs");
+        assert_eq!(alert.most_recent_instance.location.start_line, 41);
+    }
+
+    #[test]
+    fn optional_security_fields_remain_absent_when_github_omits_them() {
+        let alert: GitHubDependabotAlert = serde_json::from_value(json!({
+            "security_advisory": {},
+            "security_vulnerability": {}
+        }))
+        .expect("partial alert should retain explicit optional absence");
+
+        assert!(alert.security_advisory.epss.is_none());
+        assert!(alert.security_vulnerability.first_patched_version.is_none());
+    }
+}

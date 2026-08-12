@@ -532,16 +532,9 @@ async fn write_product_env(
         let Some(value) = body.values.get(definition.key) else {
             continue;
         };
-        let value = value.trim();
-        if value.is_empty() {
+        let Some(value) = validated_env_write_value(definition.key, value)? else {
             continue;
-        }
-        if value.contains('\n') || value.contains('\r') {
-            return Err(error(
-                StatusCode::BAD_REQUEST,
-                &format!("Refusing to write multi-line value for {}.", definition.key),
-            ));
-        }
+        };
 
         upsert_env_value(&env_file, definition.key, value)?;
         wrote_any = true;
@@ -561,6 +554,23 @@ async fn write_product_env(
         actions,
         product: credential_requirements_status(repo_root, &product)?,
     }))
+}
+
+fn validated_env_write_value<'a>(
+    key: &str,
+    value: &'a str,
+) -> Result<Option<&'a str>, (StatusCode, Json<ApiError>)> {
+    let value = value.trim();
+    if value.is_empty() {
+        return Ok(None);
+    }
+    if value.contains('\n') || value.contains('\r') {
+        return Err(error(
+            StatusCode::BAD_REQUEST,
+            &format!("Refusing to write multi-line value for {key}."),
+        ));
+    }
+    Ok(Some(value))
 }
 
 async fn start_first_stack(
@@ -1963,4 +1973,138 @@ fn error(status: StatusCode, message: &str) -> (StatusCode, Json<ApiError>) {
             error: message.to_string(),
         }),
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        compose_state_is_running, env_has_key, env_value, is_placeholder_env_value,
+        upsert_env_value, valid_suite_bootstrap_secret, validated_env_write_value,
+    };
+    use axum::http::StatusCode;
+    use serde_json::json;
+    use std::{
+        fs,
+        path::{Path, PathBuf},
+        sync::atomic::{AtomicU64, Ordering},
+    };
+
+    static TEMP_DIRECTORY_COUNTER: AtomicU64 = AtomicU64::new(0);
+
+    struct TestDirectory(PathBuf);
+
+    impl TestDirectory {
+        fn new() -> Self {
+            let suffix = TEMP_DIRECTORY_COUNTER.fetch_add(1, Ordering::Relaxed);
+            let path = std::env::temp_dir().join(format!(
+                "patchhive-launcher-test-{}-{suffix}",
+                std::process::id()
+            ));
+            fs::create_dir(&path).expect("test directory should be created");
+            Self(path)
+        }
+
+        fn path(&self) -> &Path {
+            &self.0
+        }
+    }
+
+    impl Drop for TestDirectory {
+        fn drop(&mut self) {
+            fs::remove_dir_all(&self.0).expect("test directory should be removed");
+        }
+    }
+
+    #[test]
+    fn compose_state_requires_an_explicit_running_state() {
+        assert!(compose_state_is_running(json!({ "State": "running" })));
+        assert!(compose_state_is_running(json!({ "state": "RUNNING" })));
+        assert!(!compose_state_is_running(json!({ "State": "exited" })));
+        assert!(!compose_state_is_running(json!({})));
+    }
+
+    #[test]
+    fn bootstrap_secret_validation_rejects_weak_or_multiline_values() {
+        assert!(valid_suite_bootstrap_secret(
+            "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+        ));
+        assert!(!valid_suite_bootstrap_secret("too-short"));
+        assert!(!valid_suite_bootstrap_secret(
+            "0123456789abcdef0123456789abcdef\nSECOND=value"
+        ));
+    }
+
+    #[test]
+    fn env_write_validation_trims_values_and_blocks_line_injection() {
+        let accepted = validated_env_write_value("TOKEN", "  secret-value  ")
+            .unwrap_or_else(|(_, body)| panic!("single-line value was rejected: {}", body.error));
+        assert_eq!(accepted, Some("secret-value"));
+        let empty = validated_env_write_value("TOKEN", "   ")
+            .unwrap_or_else(|(_, body)| panic!("empty input was rejected: {}", body.error));
+        assert_eq!(empty, None);
+
+        let (status, body) = validated_env_write_value("TOKEN", "secret\nOTHER=value")
+            .expect_err("multi-line value must be rejected");
+        assert_eq!(status, StatusCode::BAD_REQUEST);
+        assert_eq!(body.error, "Refusing to write multi-line value for TOKEN.");
+    }
+
+    #[test]
+    fn env_reads_ignore_comments_and_match_exact_keys() {
+        let directory = TestDirectory::new();
+        let env_file = directory.path().join(".env");
+        fs::write(
+            &env_file,
+            "# TOKEN=commented\nTOKEN_SUFFIX=wrong\nTOKEN='correct value'\n",
+        )
+        .expect("fixture should be written");
+
+        assert!(env_has_key(&env_file, "TOKEN"));
+        assert!(!env_has_key(&env_file, "MISSING"));
+        assert_eq!(
+            env_value(&env_file, "TOKEN").as_deref(),
+            Some("correct value")
+        );
+    }
+
+    #[test]
+    fn env_upsert_replaces_only_the_exact_key_and_hardens_permissions() {
+        let directory = TestDirectory::new();
+        let env_file = directory.path().join(".env");
+        fs::write(&env_file, "TOKEN_SUFFIX=keep\nTOKEN=old\nOTHER=keep\n")
+            .expect("fixture should be written");
+
+        upsert_env_value(&env_file, "TOKEN", "new")
+            .unwrap_or_else(|(_, body)| panic!("env update failed: {}", body.error));
+
+        assert_eq!(
+            fs::read_to_string(&env_file).expect("updated env should be readable"),
+            "TOKEN_SUFFIX=keep\nOTHER=keep\nTOKEN=new\n"
+        );
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            assert_eq!(
+                fs::metadata(&env_file)
+                    .expect("env metadata should be readable")
+                    .permissions()
+                    .mode()
+                    & 0o777,
+                0o600
+            );
+        }
+    }
+
+    #[test]
+    fn placeholder_detection_catches_template_credentials() {
+        assert!(is_placeholder_env_value(
+            "PATCHHIVE_GITHUB_TOKEN_RO",
+            "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        ));
+        assert!(is_placeholder_env_value("TOKEN", "replace-me"));
+        assert!(!is_placeholder_env_value(
+            "PATCHHIVE_GITHUB_TOKEN_RO",
+            "ghp_real-looking-test-value"
+        ));
+    }
 }

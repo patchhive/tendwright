@@ -811,6 +811,7 @@ dependencies = [
  "patchhive-github-data",
  "reqwest",
  "serde",
+ "serde_json",
 ]
 
 [[package]]

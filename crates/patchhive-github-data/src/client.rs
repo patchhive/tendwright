@@ -110,8 +110,18 @@ pub fn valid_repo(repo: &str) -> bool {
     let mut parts = repo.split('/');
     matches!(
         (parts.next(), parts.next(), parts.next()),
-        (Some(owner), Some(name), None) if !owner.trim().is_empty() && !name.trim().is_empty()
+        (Some(owner), Some(name), None)
+            if valid_repo_segment(owner) && valid_repo_segment(name)
     )
+}
+
+fn valid_repo_segment(segment: &str) -> bool {
+    !segment.is_empty()
+        && segment != "."
+        && segment != ".."
+        && segment.chars().all(|character| {
+            character.is_ascii_alphanumeric() || matches!(character, '-' | '_' | '.')
+        })
 }
 
 fn ensure_valid_repo(repo: &str) -> Result<()> {
@@ -589,6 +599,10 @@ mod tests {
     fn valid_repo_rejects_extra_or_missing_segments() {
         assert!(!valid_repo("patchhive/repo/extra"));
         assert!(!valid_repo("patchhive/"));
+        assert!(!valid_repo("/repo"));
+        assert!(!valid_repo("patch hive/repo"));
+        assert!(!valid_repo("patchhive/repo?tab=actions"));
+        assert!(!valid_repo("patchhive/.."));
     }
 
     #[test]
