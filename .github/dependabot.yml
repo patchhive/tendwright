@@ -25,6 +25,11 @@ updates:
         update-types:
           - minor
           - patch
+      npm-breaking-updates:
+        patterns:
+          - "*"
+        update-types:
+          - major
 
   # The root virtual workspace owns every monorepo Rust package and lockfile.
   - package-ecosystem: cargo
