@@ -1,4 +1,6 @@
-FROM rust:1.85-bookworm AS build
+ARG RUST_IMAGE=rust:1.97.1-bookworm@sha256:77fac8b98f9f46062bb680b6d25d5bcaabfc400143952ebc572e924bcbedc3fa
+
+FROM ${RUST_IMAGE} AS build
 WORKDIR /app
 COPY crates /app/crates
 COPY Cargo.lock /app/services/patchhive-registry/Cargo.lock
