@@ -35,6 +35,10 @@ FailGuard remains cross-cutting: TrustGate can suggest candidates, but RepoMemor
 7. Publish back to GitHub (when configured): a maintained PR comment plus a status signal—a commit status for PATs or a native check run for GitHub App authentication.
 8. Submit FailGuard candidates to RepoMemory for `warn` and `block` outcomes when RepoMemory is configured.
 
+GitHub review and signed-webhook actions publish their decision evidence
+automatically. TrustGate advertises those actions as automatic external writes;
+it has no separate operator-approval-gated action.
+
 ---
 
 ## Inputs

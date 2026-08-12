@@ -42,7 +42,7 @@ index 1111111..2222222 100644
 [safety]
 read_only = false
 writes_external_state = true
-requires_operator_approval = true
+requires_operator_approval = false
 credential_scopes = ["github:pull_requests:read", "github:checks:write"]
 evidence_required = ["diff", "policy pack", "decision report"]
 

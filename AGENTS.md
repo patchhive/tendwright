@@ -253,6 +253,9 @@ patchhive/
   follow-ups become exact approval-gated work items. RepoReaper may update only its
   own open draft PR under its normal cap, test, Smith, and TrustGate gates. See
   `docs/maintainer-engagement-loop.md`.
+- Maintainer-engagement webhook ingestion requires an explicit PatchHive bot
+  login as well as the signing secret. Missing bot identity fails ingestion
+  closed so Tendwright cannot classify its own artifact messages as maintainer input.
 - PR reconciliation writes merged and closed-unmerged outcomes into the suite ledger.
   A rolling rejection governor automatically limits autonomous writes to `propose`,
   and closed-unmerged work is offered to RepoMemory as FailGuard evidence.
@@ -294,6 +297,9 @@ AI provider integration:
 - Preserve support for Anthropic, OpenAI, Gemini, Groq, Ollama, and custom OpenAI-compatible endpoints
 - No provider SDK dependencies unless there is a compelling repo-wide change
 - Prefer `PATCHHIVE_AI_URL` for PatchHive-wide OpenAI-compatible local gateways before falling back to raw provider endpoints
+- A non-local `PATCHHIVE_AI_URL` accepts only the explicit
+  `PATCHHIVE_AI_API_KEY`; never fall back to `OPENAI_API_KEY` for an arbitrary
+  configured host. `OPENAI_API_KEY` is only for the explicit OpenAI provider path.
 - ChatGPT subscription access must use the official Codex SDK/CLI through
   `@patchhive/ai-local`. Codex owns OAuth, credential storage, refresh, and
   logout; PatchHive products and databases must never receive, copy, or expose

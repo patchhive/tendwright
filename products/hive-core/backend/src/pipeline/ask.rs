@@ -26,7 +26,7 @@ use serde_json::{json, Value};
 
 use crate::{db, state::AppState};
 
-use super::overview::materialized_runtime_products;
+use super::{ai::configured_ai_endpoint, overview::materialized_runtime_products};
 
 #[derive(Debug, Deserialize)]
 pub struct AskRequest {
@@ -187,15 +187,17 @@ pub async fn ask(State(state): State<AppState>, Json(request): Json<AskRequest>)
         );
     }
 
-    let Some(base) = nonempty_env("PATCHHIVE_AI_URL").or_else(|| nonempty_env("OPENAI_BASE_URL"))
-    else {
-        return plain_error(
-            StatusCode::BAD_GATEWAY,
-            "No AI gateway configured. Set PATCHHIVE_AI_URL to an OpenAI-compatible endpoint \
-             (see packages/ai-local), or OPENAI_BASE_URL with a provider key.",
-        );
-    };
-    let base = base.trim_end_matches('/').to_string();
+    let endpoint =
+        match configured_ai_endpoint() {
+            Ok(Some(endpoint)) => endpoint,
+            Ok(None) => return plain_error(
+                StatusCode::BAD_GATEWAY,
+                "No AI gateway configured. Set PATCHHIVE_AI_URL to an OpenAI-compatible endpoint \
+                 (see packages/ai-local), or OPENAI_BASE_URL with a provider key.",
+            ),
+            Err(error) => return plain_error(StatusCode::BAD_GATEWAY, error),
+        };
+    let base = endpoint.base_url();
     let model = nonempty_env("HIVE_CORE_AI_MODEL").unwrap_or_else(|| "gpt-4o-mini".to_string());
 
     let context = build_context(&state).await;
@@ -216,41 +218,11 @@ pub async fn ask(State(state): State<AppState>, Json(request): Json<AskRequest>)
         ],
     });
 
-    let mut request_builder = state
+    let request_builder = state
         .dispatch_client
         .post(format!("{base}/chat/completions"))
         .json(&body);
-
-    let is_local = reqwest::Url::parse(&base)
-        .ok()
-        .and_then(|url| url.host_str().map(str::to_ascii_lowercase))
-        .is_some_and(|host| {
-            host == "localhost"
-                || host
-                    .parse::<std::net::IpAddr>()
-                    .is_ok_and(|address| address.is_loopback())
-        });
-    match nonempty_env("PATCHHIVE_AI_API_KEY").or_else(|| nonempty_env("OPENAI_API_KEY")) {
-        _ if is_local => match nonempty_env("PATCHHIVE_AI_GATEWAY_API_KEY") {
-            Some(key) => request_builder = request_builder.bearer_auth(key),
-            None => {
-                return plain_error(
-                    StatusCode::BAD_GATEWAY,
-                    "PATCHHIVE_AI_GATEWAY_API_KEY is required for the local AI gateway.",
-                )
-            }
-        },
-        Some(key) => request_builder = request_builder.bearer_auth(key),
-        None => {
-            return plain_error(
-                StatusCode::BAD_GATEWAY,
-                format!(
-                    "AI gateway {base} is not local and no key is configured. Set \
-                     PATCHHIVE_AI_API_KEY, or point PATCHHIVE_AI_URL at a local gateway."
-                ),
-            )
-        }
-    }
+    let request_builder = endpoint.apply_auth(request_builder);
 
     let response = match request_builder.send().await {
         Ok(response) => response,

@@ -288,9 +288,8 @@ pub async fn github_webhook(request: Request<Body>) -> Result<Json<Value>, Statu
         })));
     }
 
-    let bot_login =
-        environment_value(&["PATCHHIVE_GITHUB_BOT_LOGIN", "BOT_GITHUB_USER"]).unwrap_or_default();
-    if !bot_login.is_empty() && message.author_login.eq_ignore_ascii_case(&bot_login) {
+    let bot_login = configured_bot_login().ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
+    if message.author_login.eq_ignore_ascii_case(&bot_login) {
         return Ok(Json(json!({"accepted": false, "reason": "own_message"})));
     }
     let artifact = resolve_owned(
@@ -422,6 +421,10 @@ fn environment_value(names: &[&str]) -> Option<String> {
             .map(|value| value.trim().to_string())
             .filter(|value| !value.is_empty())
     })
+}
+
+pub(crate) fn configured_bot_login() -> Option<String> {
+    environment_value(&["PATCHHIVE_GITHUB_BOT_LOGIN", "BOT_GITHUB_USER"])
 }
 
 fn verify_signature(headers: &HeaderMap, body: &[u8], secret: &str) -> Result<(), StatusCode> {

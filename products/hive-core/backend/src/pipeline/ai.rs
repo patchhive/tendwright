@@ -17,6 +17,8 @@
 //! something the deck did not show.
 
 use axum::{extract::State, http::StatusCode, Json};
+use patchhive_product_core::ai_gateway::AiGatewayConfiguration;
+use reqwest::RequestBuilder;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
@@ -79,27 +81,50 @@ fn nonempty_env(key: &str) -> Option<String> {
         .filter(|value| !value.is_empty())
 }
 
-/// The gateway base. `PATCHHIVE_AI_URL` first, per the suite-wide preference.
-fn gateway_base() -> Option<String> {
-    nonempty_env("PATCHHIVE_AI_URL")
-        .or_else(|| nonempty_env("OPENAI_BASE_URL"))
-        .map(|base| base.trim_end_matches('/').to_string())
+pub(super) enum AiEndpoint {
+    PatchHive(AiGatewayConfiguration),
+    OpenAi { base_url: String, api_key: String },
+}
+
+impl AiEndpoint {
+    pub(super) fn base_url(&self) -> &str {
+        match self {
+            Self::PatchHive(configuration) => &configuration.base_url,
+            Self::OpenAi { base_url, .. } => base_url,
+        }
+    }
+
+    pub(super) fn apply_auth(&self, request: RequestBuilder) -> RequestBuilder {
+        match self {
+            Self::PatchHive(configuration) => configuration.apply_auth(request),
+            Self::OpenAi { api_key, .. } => request.bearer_auth(api_key),
+        }
+    }
+}
+
+/// Resolve the endpoint and its exact credential namespace together. A remote
+/// PATCHHIVE_AI_URL never inherits a provider credential intended for OpenAI.
+pub(super) fn configured_ai_endpoint() -> Result<Option<AiEndpoint>, String> {
+    match AiGatewayConfiguration::from_environment() {
+        Ok(Some(configuration)) => return Ok(Some(AiEndpoint::PatchHive(configuration))),
+        Ok(None) => {}
+        Err(error) => return Err(error.to_string()),
+    }
+
+    let Some(base_url) = nonempty_env("OPENAI_BASE_URL") else {
+        return Ok(None);
+    };
+    let api_key = nonempty_env("OPENAI_API_KEY").ok_or_else(|| {
+        "OPENAI_API_KEY is required when OPENAI_BASE_URL is configured.".to_string()
+    })?;
+    Ok(Some(AiEndpoint::OpenAi {
+        base_url: base_url.trim_end_matches('/').to_string(),
+        api_key,
+    }))
 }
 
 fn model_name() -> String {
     nonempty_env("HIVE_CORE_AI_MODEL").unwrap_or_else(|| "gpt-4o-mini".to_string())
-}
-
-fn is_local(base: &str) -> bool {
-    reqwest::Url::parse(base)
-        .ok()
-        .and_then(|url| url.host_str().map(str::to_ascii_lowercase))
-        .is_some_and(|host| {
-            host == "localhost"
-                || host
-                    .parse::<std::net::IpAddr>()
-                    .is_ok_and(|address| address.is_loopback())
-        })
 }
 
 /// One chat completion against the configured OpenAI-compatible gateway.
@@ -108,13 +133,12 @@ fn is_local(base: &str) -> bool {
 /// configuration answer, not a model answer, and must not be dressed up as one —
 /// the deck shows the message verbatim so the operator knows which knob is missing.
 async fn complete(state: &AppState, system: &str, user: String) -> Result<GeneratedText, String> {
-    let Some(base) = gateway_base() else {
-        return Err(
-            "No AI gateway configured. Set PATCHHIVE_AI_URL to an OpenAI-compatible endpoint \
+    let endpoint = configured_ai_endpoint()?.ok_or_else(|| {
+        "No AI gateway configured. Set PATCHHIVE_AI_URL to an OpenAI-compatible endpoint \
              (see packages/ai-local) or OPENAI_BASE_URL with a provider key."
-                .to_string(),
-        );
-    };
+            .to_string()
+    })?;
+    let base = endpoint.base_url();
     let model = model_name();
 
     let body = json!({
@@ -127,28 +151,11 @@ async fn complete(state: &AppState, system: &str, user: String) -> Result<Genera
         ],
     });
 
-    let mut request = state
+    let request = state
         .client
         .post(format!("{base}/chat/completions"))
         .json(&body);
-
-    match nonempty_env("PATCHHIVE_AI_API_KEY").or_else(|| nonempty_env("OPENAI_API_KEY")) {
-        _ if is_local(&base) => match nonempty_env("PATCHHIVE_AI_GATEWAY_API_KEY") {
-            Some(key) => request = request.bearer_auth(key),
-            None => {
-                return Err(
-                    "PATCHHIVE_AI_GATEWAY_API_KEY is required for the local AI gateway.".into(),
-                )
-            }
-        },
-        Some(key) => request = request.bearer_auth(key),
-        None => {
-            return Err(format!(
-                "AI gateway {base} is not local and no key is configured. \
-                 Set PATCHHIVE_AI_API_KEY, or point PATCHHIVE_AI_URL at a local gateway."
-            ))
-        }
-    }
+    let request = endpoint.apply_auth(request);
 
     let response = request
         .send()
@@ -313,6 +320,9 @@ pub async fn explain_failure(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::sync::Mutex;
+
+    static ENV_LOCK: Mutex<()> = Mutex::new(());
 
     #[test]
     fn logs_render_empty_as_a_statement_not_a_blank() {
@@ -333,33 +343,54 @@ mod tests {
     }
 
     #[test]
-    fn gateway_base_trims_trailing_slash() {
+    fn configured_endpoint_trims_trailing_slash() {
+        let _guard = ENV_LOCK.lock().expect("AI endpoint env lock");
         // The caller appends "/chat/completions"; a trailing slash would double it.
         temp_env(
             "PATCHHIVE_AI_URL",
             Some("http://127.0.0.1:8787/v1/"),
             || {
-                assert_eq!(gateway_base().as_deref(), Some("http://127.0.0.1:8787/v1"));
+                temp_env("PATCHHIVE_AI_GATEWAY_API_KEY", Some("gateway-key"), || {
+                    let endpoint = configured_ai_endpoint()
+                        .expect("valid configuration")
+                        .expect("configured endpoint");
+                    assert_eq!(endpoint.base_url(), "http://127.0.0.1:8787/v1");
+                });
             },
         );
     }
 
     #[test]
     fn missing_gateway_is_none_not_a_silent_default() {
+        let _guard = ENV_LOCK.lock().expect("AI endpoint env lock");
         // Falling back to a public provider URL by default would send suite
         // incident text off-box without the operator choosing to.
         temp_env("PATCHHIVE_AI_URL", None, || {
             temp_env("OPENAI_BASE_URL", None, || {
-                assert!(gateway_base().is_none());
+                assert!(configured_ai_endpoint()
+                    .expect("unconfigured endpoint is valid")
+                    .is_none());
             });
         });
     }
 
     #[test]
-    fn loopback_bases_are_recognised_as_local() {
-        assert!(is_local("http://127.0.0.1:8787/v1"));
-        assert!(is_local("http://localhost:8787/v1"));
-        assert!(!is_local("https://api.openai.com/v1"));
+    fn remote_patchhive_endpoint_never_inherits_openai_key() {
+        let _guard = ENV_LOCK.lock().expect("AI endpoint env lock");
+        temp_env(
+            "PATCHHIVE_AI_URL",
+            Some("https://gateway.example/v1"),
+            || {
+                temp_env("PATCHHIVE_AI_API_KEY", None, || {
+                    temp_env("OPENAI_API_KEY", Some("openai-provider-key"), || {
+                        let error = configured_ai_endpoint()
+                            .err()
+                            .expect("remote PatchHive endpoint needs its explicit credential");
+                        assert!(error.contains("PATCHHIVE_AI_API_KEY"));
+                    });
+                });
+            },
+        );
     }
 
     /// Env is process-global; restore it so tests stay order-independent.

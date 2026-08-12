@@ -45,10 +45,19 @@ pub async fn validate_config() -> Vec<StartupCheck> {
             .ok()
             .is_some_and(|value| !value.trim().is_empty())
     });
-    if engagement_webhook_configured {
+    if engagement_webhook_configured && crate::engagements::configured_bot_login().is_some() {
         checks.push(
-            StartupCheck::ok("Signed GitHub maintainer-engagement ingestion is configured.")
+            StartupCheck::ok(
+                "Signed GitHub maintainer-engagement ingestion and bot self-filtering are configured.",
+            )
                 .with_identity("maintainer_engagement_webhook", "configured"),
+        );
+    } else if engagement_webhook_configured {
+        checks.push(
+            StartupCheck::error(
+                "Maintainer-engagement ingestion requires PATCHHIVE_GITHUB_BOT_LOGIN (or legacy BOT_GITHUB_USER) so Tendwright cannot ingest its own messages.",
+            )
+            .with_identity("maintainer_engagement_webhook", "invalid"),
         );
     } else {
         checks.push(

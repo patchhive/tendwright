@@ -402,6 +402,10 @@ typography scale, spacing system, or theme implementation.
   target-specific write. Scope guidance: [docs/github-token-scopes.md](docs/github-token-scopes.md).
 - Prefer `PATCHHIVE_AI_URL` (OpenAI-compatible local gateway) before raw provider endpoints.
   Preserve Anthropic, OpenAI, Gemini, Groq, Ollama, and custom OpenAI-compatible support.
+- Remote `PATCHHIVE_AI_URL` hosts require explicit `PATCHHIVE_AI_API_KEY` and
+  never inherit `OPENAI_API_KEY`; that provider key is reserved for OpenAI.
+- HiveCore maintainer-engagement webhooks require both the signing secret and
+  explicit PatchHive bot login; missing self-filter identity fails closed.
 - ChatGPT subscription execution goes only through the official Codex SDK/CLI
   in `@patchhive/ai-local`; Codex owns OAuth and token refresh. Products store
   only gateway/provider selection, keep auth state typed and redacted, and may

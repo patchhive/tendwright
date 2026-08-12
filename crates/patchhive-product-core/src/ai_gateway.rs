@@ -30,7 +30,7 @@ impl AiGatewayConfiguration {
         Self::new(
             base_url,
             nonempty_env("PATCHHIVE_AI_GATEWAY_API_KEY"),
-            nonempty_env("PATCHHIVE_AI_API_KEY").or_else(|| nonempty_env("OPENAI_API_KEY")),
+            nonempty_env("PATCHHIVE_AI_API_KEY"),
         )
         .map(Some)
     }

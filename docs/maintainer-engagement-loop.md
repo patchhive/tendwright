@@ -34,8 +34,10 @@ verification, carry a delivery ID, target an exact Tendwright-owned artifact,
 and not be authored by the configured PatchHive bot identity.
 
 Use `HIVE_CORE_GITHUB_WEBHOOK_SECRET`; the suite compatibility name
-`PATCHHIVE_GITHUB_WEBHOOK_SECRET` is also accepted. Products register issues
-they open through `POST /engagements/artifacts` using scoped service auth.
+`PATCHHIVE_GITHUB_WEBHOOK_SECRET` is also accepted. A configured webhook also
+requires `PATCHHIVE_GITHUB_BOT_LOGIN` (or legacy `BOT_GITHUB_USER`) and fails
+closed without it, so Tendwright can never ingest its own messages. Products
+register issues they open through `POST /engagements/artifacts` using scoped service auth.
 Pull requests committed through HiveCore's PR-budget protocol are recognized
 and materialized automatically. Messages on unowned artifacts are ignored.
 
