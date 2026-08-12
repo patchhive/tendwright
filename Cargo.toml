@@ -2,7 +2,7 @@
 resolver = "2"
 members = [
   "crates/*",
-  "packages/*/rust-gateway",
+  "packages/ai-local/rust-gateway",
   "products/*/backend",
   "services/*",
 ]
