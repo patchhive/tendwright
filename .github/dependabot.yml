@@ -26,6 +26,7 @@ updates:
           - minor
           - patch
 
+  # The root virtual workspace owns every monorepo Rust package and lockfile.
   - package-ecosystem: cargo
     directory: /
     schedule:
