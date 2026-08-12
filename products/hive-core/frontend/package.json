@@ -33,7 +33,7 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.2.0",
-    "jsdom": "^29.1.1",
+    "jsdom": "^30.0.1",
     "tailwindcss": "^4.2.1",
     "tw-animate-css": "^1.3.4",
     "typescript": "^5.8.3",
