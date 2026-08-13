@@ -98,7 +98,7 @@ description = "List VulnTriage runs."
 
 [[routes]]
 method = "GET"
-path = "/api/products/vuln-triage/runs/:id"
+path = "/api/products/vuln-triage/runs/{id}"
 description = "Read a VulnTriage scan detail."
 
 [[routes]]
@@ -113,5 +113,5 @@ description = "List VulnTriage scan history."
 
 [[routes]]
 method = "GET"
-path = "/api/products/vuln-triage/history/:id"
+path = "/api/products/vuln-triage/history/{id}"
 description = "Read a VulnTriage scan detail."

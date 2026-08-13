@@ -139,17 +139,17 @@ description = "List RepoReaper runs."
 
 [[routes]]
 method = "GET"
-path = "/api/products/repo-reaper/runs/:run_id"
+path = "/api/products/repo-reaper/runs/{run_id}"
 description = "Read a RepoReaper run detail."
 
 [[routes]]
 method = "GET"
-path = "/api/products/repo-reaper/runs/:run_id/artifacts"
+path = "/api/products/repo-reaper/runs/{run_id}/artifacts"
 description = "Read durable ordered diagnostic artifacts for one RepoReaper run."
 
 [[routes]]
 method = "GET"
-path = "/api/products/repo-reaper/runs/:run_id/events"
+path = "/api/products/repo-reaper/runs/{run_id}/events"
 description = "Read PatchHive contract v1 run events for one RepoReaper run."
 
 [[routes]]
@@ -159,12 +159,12 @@ description = "List RepoReaper run history."
 
 [[routes]]
 method = "GET"
-path = "/api/products/repo-reaper/history/:run_id"
+path = "/api/products/repo-reaper/history/{run_id}"
 description = "Read a RepoReaper history run detail."
 
 [[routes]]
 method = "GET"
-path = "/api/products/repo-reaper/diff/:run_id/:issue_number"
+path = "/api/products/repo-reaper/diff/{run_id}/{issue_number}"
 description = "Read a stored patch diff for a run issue."
 
 [[routes]]
@@ -184,17 +184,17 @@ description = "Read the local AI gateway status."
 
 [[routes]]
 method = "GET"
-path = "/api/products/repo-reaper/models/:provider"
+path = "/api/products/repo-reaper/models/{provider}"
 description = "List models for a provider."
 
 [[routes]]
 method = "POST"
-path = "/api/products/repo-reaper/models/:provider"
+path = "/api/products/repo-reaper/models/{provider}"
 description = "Refresh models for a provider."
 
 [[routes]]
 method = "POST"
-path = "/api/products/repo-reaper/models/:provider/test"
+path = "/api/products/repo-reaper/models/{provider}/test"
 description = "Test provider connectivity for a selected model."
 
 [[routes]]
@@ -209,7 +209,7 @@ description = "Save RepoReaper agent team."
 
 [[routes]]
 method = "DELETE"
-path = "/api/products/repo-reaper/agents/:id"
+path = "/api/products/repo-reaper/agents/{id}"
 description = "Remove a RepoReaper agent."
 
 [[routes]]
@@ -224,7 +224,7 @@ description = "Save a RepoReaper preset."
 
 [[routes]]
 method = "DELETE"
-path = "/api/products/repo-reaper/presets/:name"
+path = "/api/products/repo-reaper/presets/{name}"
 description = "Delete a RepoReaper preset."
 
 [[routes]]
@@ -239,7 +239,7 @@ description = "Add a repo list entry."
 
 [[routes]]
 method = "DELETE"
-path = "/api/products/repo-reaper/repo-lists/*repo"
+path = "/api/products/repo-reaper/repo-lists/{*repo}"
 description = "Remove a repo list entry."
 
 [[routes]]
@@ -249,7 +249,7 @@ description = "List provider cooldowns."
 
 [[routes]]
 method = "DELETE"
-path = "/api/products/repo-reaper/cooldowns/:provider"
+path = "/api/products/repo-reaper/cooldowns/{provider}"
 description = "Clear a provider cooldown."
 
 [[routes]]
@@ -284,7 +284,7 @@ description = "List tracked pull requests."
 
 [[routes]]
 method = "POST"
-path = "/api/products/repo-reaper/pr-tracking/:repo/:pr_number/refresh"
+path = "/api/products/repo-reaper/pr-tracking/{repo}/{pr_number}/refresh"
 description = "Refresh a tracked pull request state."
 
 [[routes]]
@@ -304,12 +304,12 @@ description = "Create a scheduled RepoReaper run."
 
 [[routes]]
 method = "DELETE"
-path = "/api/products/repo-reaper/schedules/:id"
+path = "/api/products/repo-reaper/schedules/{id}"
 description = "Delete a scheduled RepoReaper run."
 
 [[routes]]
 method = "PATCH"
-path = "/api/products/repo-reaper/schedules/:id/toggle"
+path = "/api/products/repo-reaper/schedules/{id}/toggle"
 description = "Toggle a scheduled RepoReaper run."
 
 [[routes]]
@@ -319,27 +319,27 @@ description = "Receive GitHub webhooks for watch mode."
 
 [[routes]]
 method = "GET"
-path = "/api/products/repo-reaper/automation/:action_id/schedules"
+path = "/api/products/repo-reaper/automation/{action_id}/schedules"
 description = "List schedules for one RepoReaper action."
 
 [[routes]]
 method = "POST"
-path = "/api/products/repo-reaper/automation/:action_id/schedules"
+path = "/api/products/repo-reaper/automation/{action_id}/schedules"
 description = "Save a schedule for one RepoReaper action."
 
 [[routes]]
 method = "DELETE"
-path = "/api/products/repo-reaper/automation/:action_id/schedules/:name"
+path = "/api/products/repo-reaper/automation/{action_id}/schedules/{name}"
 description = "Delete one named RepoReaper action schedule."
 
 [[routes]]
 method = "POST"
-path = "/api/products/repo-reaper/automation/:action_id/schedules/:name/run"
+path = "/api/products/repo-reaper/automation/{action_id}/schedules/{name}/run"
 description = "Run one named RepoReaper action schedule now."
 
 [[routes]]
 method = "POST"
-path = "/api/products/repo-reaper/presets/:name/load"
+path = "/api/products/repo-reaper/presets/{name}/load"
 description = "Load one saved RepoReaper preset."
 
 [[routes]]

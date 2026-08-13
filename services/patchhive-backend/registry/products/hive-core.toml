@@ -108,7 +108,7 @@ description = "Ingest idempotent product-finding receipts."
 
 [[routes]]
 method = "GET"
-path = "/api/products/hive-core/work-items/:id"
+path = "/api/products/hive-core/work-items/{id}"
 description = "Read one work item and its source receipts."
 
 [[routes]]
@@ -128,7 +128,7 @@ description = "Register product ownership of a GitHub issue or pull request."
 
 [[routes]]
 method = "POST"
-path = "/api/products/hive-core/engagements/:id/decision"
+path = "/api/products/hive-core/engagements/{id}/decision"
 description = "Record an operator decision or propose an exact guarded response handoff."
 
 [[routes]]
@@ -138,7 +138,7 @@ description = "Ingest signed GitHub maintainer messages on owned artifacts."
 
 [[routes]]
 method = "GET"
-path = "/api/products/hive-core/blast-radius/:slug"
+path = "/api/products/hive-core/blast-radius/{slug}"
 description = "Read work-ledger-derived product impact."
 
 [[routes]]
@@ -213,7 +213,7 @@ description = "List HiveCore action runs."
 
 [[routes]]
 method = "GET"
-path = "/api/products/hive-core/runs/:id"
+path = "/api/products/hive-core/runs/{id}"
 description = "Read one HiveCore action run."
 
 [[routes]]
@@ -253,7 +253,7 @@ description = "Stop the Tendwright first stack."
 
 [[routes]]
 method = "POST"
-path = "/api/products/hive-core/setup/smoke/:tier"
+path = "/api/products/hive-core/setup/smoke/{tier}"
 description = "Run one declared suite smoke tier."
 
 [[routes]]
@@ -268,27 +268,27 @@ description = "Start every configured product."
 
 [[routes]]
 method = "POST"
-path = "/api/products/hive-core/setup/products/:slug/start"
+path = "/api/products/hive-core/setup/products/{slug}/start"
 description = "Start one product through host control."
 
 [[routes]]
 method = "POST"
-path = "/api/products/hive-core/setup/products/:slug/stop"
+path = "/api/products/hive-core/setup/products/{slug}/stop"
 description = "Stop one product through host control."
 
 [[routes]]
 method = "POST"
-path = "/api/products/hive-core/setup/products/:slug/restart"
+path = "/api/products/hive-core/setup/products/{slug}/restart"
 description = "Restart one product through host control."
 
 [[routes]]
 method = "GET"
-path = "/api/products/hive-core/setup/products/:slug/logs"
+path = "/api/products/hive-core/setup/products/{slug}/logs"
 description = "Read bounded host-control logs for one product."
 
 [[routes]]
 method = "POST"
-path = "/api/products/hive-core/setup/products/:slug/env"
+path = "/api/products/hive-core/setup/products/{slug}/env"
 description = "Save validated setup environment values for one product."
 
 [[routes]]
@@ -298,17 +298,17 @@ description = "Validate a GitHub credential during setup."
 
 [[routes]]
 method = "GET"
-path = "/api/products/hive-core/products/:slug/runs"
+path = "/api/products/hive-core/products/{slug}/runs"
 description = "List materialized runs for one product."
 
 [[routes]]
 method = "GET"
-path = "/api/products/hive-core/products/:slug/runs/:id"
+path = "/api/products/hive-core/products/{slug}/runs/{id}"
 description = "Read one materialized product run."
 
 [[routes]]
 method = "POST"
-path = "/api/products/hive-core/products/:slug/provision-service-token"
+path = "/api/products/hive-core/products/{slug}/provision-service-token"
 description = "Provision a scoped service token for one product."
 
 [[routes]]
@@ -323,27 +323,27 @@ description = "List durable exact-dispatch approvals."
 
 [[routes]]
 method = "GET"
-path = "/api/products/hive-core/engagements/:id"
+path = "/api/products/hive-core/engagements/{id}"
 description = "Read one durable maintainer engagement."
 
 [[routes]]
 method = "POST"
-path = "/api/products/hive-core/approvals/:id/grant"
+path = "/api/products/hive-core/approvals/{id}/grant"
 description = "Grant one exact single-use dispatch approval."
 
 [[routes]]
 method = "POST"
-path = "/api/products/hive-core/approvals/:id/deny"
+path = "/api/products/hive-core/approvals/{id}/deny"
 description = "Deny one pending dispatch approval."
 
 [[routes]]
 method = "POST"
-path = "/api/products/hive-core/approvals/:id/revoke"
+path = "/api/products/hive-core/approvals/{id}/revoke"
 description = "Revoke one granted dispatch approval."
 
 [[routes]]
 method = "POST"
-path = "/api/products/hive-core/approvals/:id/dispatch"
+path = "/api/products/hive-core/approvals/{id}/dispatch"
 description = "Consume one approval and dispatch its exact action."
 
 [[routes]]
@@ -373,27 +373,27 @@ description = "Create a durable Tendwright mandate."
 
 [[routes]]
 method = "GET"
-path = "/api/products/hive-core/mandates/:id"
+path = "/api/products/hive-core/mandates/{id}"
 description = "Read one durable mandate."
 
 [[routes]]
 method = "PUT"
-path = "/api/products/hive-core/mandates/:id"
+path = "/api/products/hive-core/mandates/{id}"
 description = "Update one mandate with optimistic revision checks."
 
 [[routes]]
 method = "POST"
-path = "/api/products/hive-core/mandates/:id/activate"
+path = "/api/products/hive-core/mandates/{id}/activate"
 description = "Activate one durable mandate."
 
 [[routes]]
 method = "POST"
-path = "/api/products/hive-core/mandates/:id/pause"
+path = "/api/products/hive-core/mandates/{id}/pause"
 description = "Pause one durable mandate."
 
 [[routes]]
 method = "POST"
-path = "/api/products/hive-core/mandates/:id/archive"
+path = "/api/products/hive-core/mandates/{id}/archive"
 description = "Archive one durable mandate."
 
 [[routes]]
@@ -413,17 +413,17 @@ description = "Reserve pull-request publication capacity atomically."
 
 [[routes]]
 method = "POST"
-path = "/api/products/hive-core/pr-budgets/reservations/:id/publishing"
+path = "/api/products/hive-core/pr-budgets/reservations/{id}/publishing"
 description = "Advance a pull-request reservation to publishing."
 
 [[routes]]
 method = "POST"
-path = "/api/products/hive-core/pr-budgets/reservations/:id/commit"
+path = "/api/products/hive-core/pr-budgets/reservations/{id}/commit"
 description = "Commit a published pull request to its reservation."
 
 [[routes]]
 method = "POST"
-path = "/api/products/hive-core/pr-budgets/reservations/:id/release"
+path = "/api/products/hive-core/pr-budgets/reservations/{id}/release"
 description = "Release one exact pull-request reservation."
 
 [[routes]]
@@ -433,17 +433,17 @@ description = "Release eligible pre-publication reservations for one run."
 
 [[routes]]
 method = "POST"
-path = "/api/products/hive-core/products/:slug/actions/:action_id"
+path = "/api/products/hive-core/products/{slug}/actions/{action_id}"
 description = "Dispatch one advertised product action through HiveCore policy."
 
 [[routes]]
 method = "GET"
-path = "/api/products/hive-core/products/:slug/probes"
+path = "/api/products/hive-core/products/{slug}/probes"
 description = "Read retained runtime probes for one product."
 
 [[routes]]
 method = "POST"
-path = "/api/products/hive-core/products/:slug/runbook"
+path = "/api/products/hive-core/products/{slug}/runbook"
 description = "Run one recorded product diagnostic runbook."
 
 [[routes]]
@@ -478,5 +478,5 @@ description = "Evaluate one repository against durable suite policy."
 
 [[routes]]
 method = "GET"
-path = "/api/products/hive-core/suite-runs/:id"
+path = "/api/products/hive-core/suite-runs/{id}"
 description = "Read one durable ordered suite run."

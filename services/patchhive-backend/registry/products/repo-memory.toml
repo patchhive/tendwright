@@ -103,7 +103,7 @@ description = "List RepoMemory ingest runs."
 
 [[routes]]
 method = "GET"
-path = "/api/products/repo-memory/runs/:id"
+path = "/api/products/repo-memory/runs/{id}"
 description = "Read a RepoMemory ingest run detail."
 
 [[routes]]
@@ -153,17 +153,17 @@ description = "Queue a FailGuard candidate for review."
 
 [[routes]]
 method = "POST"
-path = "/api/products/repo-memory/failguard/candidates/:id/promote"
+path = "/api/products/repo-memory/failguard/candidates/{id}/promote"
 description = "Promote a FailGuard candidate into durable memory."
 
 [[routes]]
 method = "POST"
-path = "/api/products/repo-memory/failguard/candidates/:id/dismiss"
+path = "/api/products/repo-memory/failguard/candidates/{id}/dismiss"
 description = "Dismiss a FailGuard candidate."
 
 [[routes]]
 method = "POST"
-path = "/api/products/repo-memory/failguard/candidates/:id/interpret"
+path = "/api/products/repo-memory/failguard/candidates/{id}/interpret"
 description = "Retry bounded AI interpretation for an open FailGuard candidate."
 
 [[routes]]
@@ -178,17 +178,17 @@ description = "List RepoMemory ingest history."
 
 [[routes]]
 method = "GET"
-path = "/api/products/repo-memory/history/:id"
+path = "/api/products/repo-memory/history/{id}"
 description = "Read a RepoMemory ingest detail."
 
 [[routes]]
 method = "GET"
-path = "/api/products/repo-memory/history/:id/diff"
+path = "/api/products/repo-memory/history/{id}/diff"
 description = "Read memory movement since the previous RepoMemory run."
 
 [[routes]]
 method = "GET"
-path = "/api/products/repo-memory/history/:id/prompt-pack"
+path = "/api/products/repo-memory/history/{id}/prompt-pack"
 description = "Read a prompt pack for a saved RepoMemory run."
 
 [[routes]]

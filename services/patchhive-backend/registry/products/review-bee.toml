@@ -96,7 +96,7 @@ description = "List ReviewBee review runs."
 
 [[routes]]
 method = "GET"
-path = "/api/products/review-bee/runs/:id"
+path = "/api/products/review-bee/runs/{id}"
 description = "Read a ReviewBee review run detail."
 
 [[routes]]
@@ -111,7 +111,7 @@ description = "List ReviewBee review history."
 
 [[routes]]
 method = "GET"
-path = "/api/products/review-bee/history/:id"
+path = "/api/products/review-bee/history/{id}"
 description = "Read a ReviewBee review detail."
 
 [[routes]]
