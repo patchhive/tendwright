@@ -16,7 +16,7 @@ path = "src/bin/consolidate_databases.rs"
 
 [dependencies]
 anyhow = "1"
-axum = { version = "0.8", features = ["macros"] }
+axum = { workspace = true, features = ["macros"] }
 chrono = { version = "0.4", features = ["serde"] }
 dep-triage = { path = "../../products/dep-triage/backend" }
 flake-sting = { path = "../../products/flake-sting/backend" }
@@ -35,8 +35,8 @@ rusqlite = { version = "0.31", features = ["bundled"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1", features = ["full"] }
-toml = "1.1"
-tower-http = { version = "0.6", features = ["cors"] }
+toml = { workspace = true }
+tower-http = { workspace = true, features = ["cors"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }

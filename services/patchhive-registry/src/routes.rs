@@ -24,13 +24,13 @@ pub fn router() -> Router<Arc<AppState>> {
         .route("/", get(root))
         .route("/health", get(health))
         .route("/v1/installs/register", post(register_install))
-        .route("/v1/installs/:install_id/heartbeat", post(heartbeat))
-        .route("/v1/installs/:install_id/smoke", post(smoke))
+        .route("/v1/installs/{install_id}/heartbeat", post(heartbeat))
+        .route("/v1/installs/{install_id}/smoke", post(smoke))
         .route("/v1/public/installs", get(public_installs))
-        .route("/v1/public/installs/:public_slug", get(public_snapshot))
+        .route("/v1/public/installs/{public_slug}", get(public_snapshot))
         .route("/v1/repository-opt-outs", post(assert_repository_opt_out))
         .route(
-            "/v1/repository-opt-outs/*repository",
+            "/v1/repository-opt-outs/{*repository}",
             delete(revoke_repository_opt_out),
         )
         .route("/v1/sync/repository-opt-outs", get(repository_opt_out_feed))

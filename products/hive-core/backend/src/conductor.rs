@@ -53,7 +53,7 @@ impl WorkIdentity {
 
     pub fn fingerprint(&self) -> String {
         let bytes = serde_json::to_vec(self).expect("work identity serialization cannot fail");
-        format!("{:x}", Sha256::digest(bytes))
+        hex::encode(Sha256::digest(bytes))
     }
 }
 
@@ -345,7 +345,7 @@ impl FindingSource {
 
     pub fn fingerprint(&self) -> String {
         let bytes = serde_json::to_vec(self).expect("finding source serialization cannot fail");
-        format!("{:x}", Sha256::digest(bytes))
+        hex::encode(Sha256::digest(bytes))
     }
 }
 
@@ -396,7 +396,7 @@ impl ProductFinding {
         let canonical = patchhive_product_core::approvals::canonical_json(&value);
         let bytes = serde_json::to_vec(&canonical)
             .expect("canonical product finding serialization cannot fail");
-        format!("{:x}", Sha256::digest(bytes))
+        hex::encode(Sha256::digest(bytes))
     }
 }
 

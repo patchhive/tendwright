@@ -184,7 +184,7 @@ pub fn router() -> Router {
         .route("/startup/checks", get(pipeline::startup_checks_route))
         .route("/capabilities", get(pipeline::capabilities))
         .route("/runs", get(pipeline::runs))
-        .route("/runs/:id", get(pipeline::run_detail))
+        .route("/runs/{id}", get(pipeline::run_detail))
         .route("/overview", get(pipeline::overview))
         .route("/products", get(pipeline::products))
         .route("/setup/first-stack", get(pipeline::first_stack_status))
@@ -201,7 +201,7 @@ pub fn router() -> Router {
             axum::routing::post(pipeline::run_first_stack_smoke),
         )
         .route(
-            "/setup/smoke/:tier",
+            "/setup/smoke/{tier}",
             axum::routing::post(pipeline::run_setup_smoke_tier),
         )
         .route(
@@ -217,36 +217,36 @@ pub fn router() -> Router {
             axum::routing::post(pipeline::start_all_fleet),
         )
         .route(
-            "/setup/products/:slug/start",
+            "/setup/products/{slug}/start",
             axum::routing::post(pipeline::start_setup_product),
         )
         .route(
-            "/setup/products/:slug/stop",
+            "/setup/products/{slug}/stop",
             axum::routing::post(pipeline::stop_setup_product),
         )
         .route(
-            "/setup/products/:slug/restart",
+            "/setup/products/{slug}/restart",
             axum::routing::post(pipeline::restart_setup_product),
         )
         .route(
-            "/setup/products/:slug/logs",
+            "/setup/products/{slug}/logs",
             get(pipeline::setup_product_logs),
         )
         .route(
-            "/setup/products/:slug/env",
+            "/setup/products/{slug}/env",
             axum::routing::post(pipeline::save_setup_product_env),
         )
         .route(
             "/setup/credentials/github/validate",
             axum::routing::post(pipeline::validate_github_token),
         )
-        .route("/products/:slug/runs", get(pipeline::product_runs))
+        .route("/products/{slug}/runs", get(pipeline::product_runs))
         .route(
-            "/products/:slug/runs/:id",
+            "/products/{slug}/runs/{id}",
             get(pipeline::product_run_detail),
         )
         .route(
-            "/products/:slug/provision-service-token",
+            "/products/{slug}/provision-service-token",
             axum::routing::post(pipeline::provision_service_token),
         )
         .route("/actions/recent", get(pipeline::recent_actions))
@@ -260,15 +260,15 @@ pub fn router() -> Router {
             "/work-items/findings",
             get(pipeline::list_finding_receipts).post(pipeline::ingest_findings),
         )
-        .route("/work-items/:id", get(pipeline::work_item_detail))
+        .route("/work-items/{id}", get(pipeline::work_item_detail))
         .route("/engagements", get(engagements::list_engagements))
         .route(
             "/engagements/artifacts",
             axum::routing::post(engagements::register_artifact),
         )
-        .route("/engagements/:id", get(engagements::engagement_detail))
+        .route("/engagements/{id}", get(engagements::engagement_detail))
         .route(
-            "/engagements/:id/decision",
+            "/engagements/{id}/decision",
             axum::routing::post(engagements::decide_engagement),
         )
         .route(
@@ -276,7 +276,7 @@ pub fn router() -> Router {
             axum::routing::post(engagements::github_webhook),
         )
         .route("/events", get(pipeline::list_suite_ledger))
-        .route("/blast-radius/:slug", get(pipeline::live_blast_radius))
+        .route("/blast-radius/{slug}", get(pipeline::live_blast_radius))
         .route("/governance", get(pipeline::governance_status))
         .route(
             "/governance/resources",
@@ -289,19 +289,19 @@ pub fn router() -> Router {
             get(pipeline::list_mandates).post(pipeline::create_mandate),
         )
         .route(
-            "/mandates/:id",
+            "/mandates/{id}",
             get(pipeline::mandate_detail).put(pipeline::update_mandate),
         )
         .route(
-            "/mandates/:id/activate",
+            "/mandates/{id}/activate",
             axum::routing::post(pipeline::activate_mandate),
         )
         .route(
-            "/mandates/:id/pause",
+            "/mandates/{id}/pause",
             axum::routing::post(pipeline::pause_mandate),
         )
         .route(
-            "/mandates/:id/archive",
+            "/mandates/{id}/archive",
             axum::routing::post(pipeline::archive_mandate),
         )
         .route(
@@ -309,26 +309,26 @@ pub fn router() -> Router {
             get(pipeline::list_conductor_ticks).post(pipeline::run_conductor_tick),
         )
         .route(
-            "/approvals/:id/grant",
+            "/approvals/{id}/grant",
             axum::routing::post(pipeline::grant_approval),
         )
         .route(
-            "/approvals/:id/deny",
+            "/approvals/{id}/deny",
             axum::routing::post(pipeline::deny_approval),
         )
         .route(
-            "/approvals/:id/revoke",
+            "/approvals/{id}/revoke",
             axum::routing::post(pipeline::revoke_approval),
         )
         .route(
-            "/approvals/:id/dispatch",
+            "/approvals/{id}/dispatch",
             axum::routing::post(pipeline::dispatch_approved),
         )
         .route(
             "/suite-runs",
             get(pipeline::list_suite_runs).post(pipeline::start_suite_run),
         )
-        .route("/suite-runs/:id", get(pipeline::suite_run_detail))
+        .route("/suite-runs/{id}", get(pipeline::suite_run_detail))
         .route(
             "/pipelines/execute",
             axum::routing::post(pipeline::execute_toml_pipeline),
@@ -337,11 +337,11 @@ pub fn router() -> Router {
         // never a dispatch, so they are not service-token dispatch paths.
         // Runbooks: a recorded read-only diagnostic pass over one product.
         .route(
-            "/products/:slug/runbook",
+            "/products/{slug}/runbook",
             axum::routing::post(pipeline::run_product_runbook),
         )
         .route("/runbooks", get(pipeline::list_runbook_runs))
-        .route("/products/:slug/probes", get(pipeline::product_probes))
+        .route("/products/{slug}/probes", get(pipeline::product_probes))
         // Ask the Hive: a grounded reading of suite state, streamed as plain text.
         .route("/ask", axum::routing::post(pipeline::ask))
         .route(
@@ -353,7 +353,7 @@ pub fn router() -> Router {
             axum::routing::post(pipeline::explain_failure),
         )
         .route(
-            "/products/:slug/actions/:action_id",
+            "/products/{slug}/actions/{action_id}",
             axum::routing::post(pipeline::dispatch_product_action),
         )
         .route(
@@ -377,15 +377,15 @@ pub fn router() -> Router {
             axum::routing::post(pipeline::reserve_pr_budget),
         )
         .route(
-            "/pr-budgets/reservations/:id/publishing",
+            "/pr-budgets/reservations/{id}/publishing",
             axum::routing::post(pipeline::begin_pr_budget_publication),
         )
         .route(
-            "/pr-budgets/reservations/:id/commit",
+            "/pr-budgets/reservations/{id}/commit",
             axum::routing::post(pipeline::commit_pr_budget_reservation),
         )
         .route(
-            "/pr-budgets/reservations/:id/release",
+            "/pr-budgets/reservations/{id}/release",
             axum::routing::post(pipeline::release_pr_budget_reservation),
         )
         .route(

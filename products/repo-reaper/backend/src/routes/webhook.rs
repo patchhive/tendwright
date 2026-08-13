@@ -30,18 +30,18 @@ use uuid::Uuid;
 pub fn router() -> Router<AppState> {
     Router::new()
         .route("/schedules", get(list_schedules).post(create_schedule))
-        .route("/schedules/:id", delete(delete_schedule))
-        .route("/schedules/:id/toggle", patch(toggle_schedule))
+        .route("/schedules/{id}", delete(delete_schedule))
+        .route("/schedules/{id}/toggle", patch(toggle_schedule))
         .route(
-            "/automation/:action_id/schedules",
+            "/automation/{action_id}/schedules",
             get(list_action_schedules).post(save_action_schedule),
         )
         .route(
-            "/automation/:action_id/schedules/:name",
+            "/automation/{action_id}/schedules/{name}",
             delete(delete_action_schedule),
         )
         .route(
-            "/automation/:action_id/schedules/:name/run",
+            "/automation/{action_id}/schedules/{name}/run",
             post(run_action_schedule_now),
         )
         .route("/webhook/github", post(github_webhook))

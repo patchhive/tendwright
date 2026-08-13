@@ -15,7 +15,7 @@ path = "src/lib.rs"
 [dependencies]
 aes-gcm = "0.11"
 anyhow = "1"
-axum = "0.8"
+axum = { workspace = true }
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
 dotenvy = "0.15"
 fs2 = "0.4"
@@ -26,10 +26,10 @@ reqwest = { version = "0.12", default-features = false, features = ["json", "rus
 rusqlite = { version = "0.31", features = ["bundled"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-sha2 = "0.11"
+sha2 = { workspace = true }
 # `rt` only: the write-authorization guard needs a runtime handle to release an
 # abandoned reservation from Drop. Products bring their own full tokio.
 tokio = { version = "1", default-features = false, features = ["rt"] }
-tower-http = { version = "0.6", features = ["cors"] }
+tower-http = { workspace = true, features = ["cors"] }
 tracing = "0.1"
 uuid = { version = "1", features = ["v4"] }

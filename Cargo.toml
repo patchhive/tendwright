@@ -6,3 +6,9 @@ members = [
   "products/*/backend",
   "services/*",
 ]
+
+[workspace.dependencies]
+axum = "0.8"
+sha2 = "0.11"
+toml = "1.1"
+tower-http = "0.6"

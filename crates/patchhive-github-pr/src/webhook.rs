@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Result};
-use hmac::{Hmac, Mac};
+use hmac::{Hmac, KeyInit, Mac};
 use http::HeaderMap;
 use sha2::Sha256;
 

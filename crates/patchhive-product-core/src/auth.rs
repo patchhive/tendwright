@@ -21,7 +21,8 @@ use std::{
 };
 
 pub type JsonApiError = (StatusCode, Json<serde_json::Value>);
-pub type ClientConnectInfo = ConnectInfo<SocketAddr>;
+pub type ClientConnectInfo =
+    Result<ConnectInfo<SocketAddr>, axum::extract::rejection::ExtensionRejection>;
 pub const SERVICE_TOKEN_HEADER: &str = "X-PatchHive-Service-Token";
 pub const SUITE_BOOTSTRAP_HEADER: &str = "X-PatchHive-Suite-Secret";
 pub const SERVICE_SCOPE_RUNS_READ: &str = "runs:read";
@@ -649,8 +650,8 @@ fn local_client_ip(ip: IpAddr) -> bool {
     ip.is_loopback()
 }
 
-pub fn peer_addr_from_connect_info(peer: Option<ClientConnectInfo>) -> Option<SocketAddr> {
-    peer.map(|ConnectInfo(addr)| addr)
+pub fn peer_addr_from_connect_info(peer: ClientConnectInfo) -> Option<SocketAddr> {
+    peer.ok().map(|ConnectInfo(addr)| addr)
 }
 
 fn configured_suite_bootstrap_secret() -> String {
