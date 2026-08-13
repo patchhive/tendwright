@@ -128,7 +128,7 @@ description = "List TrustGate decisions."
 
 [[routes]]
 method = "GET"
-path = "/api/products/trust-gate/runs/:id"
+path = "/api/products/trust-gate/runs/{id}"
 description = "Read a TrustGate decision detail."
 
 [[routes]]
@@ -148,7 +148,7 @@ description = "Save TrustGate repo rules."
 
 [[routes]]
 method = "DELETE"
-path = "/api/products/trust-gate/rules/*repo"
+path = "/api/products/trust-gate/rules/{*repo}"
 description = "Delete TrustGate repo rules."
 
 [[routes]]
@@ -163,7 +163,7 @@ description = "Save TrustGate report templates."
 
 [[routes]]
 method = "DELETE"
-path = "/api/products/trust-gate/templates/*repo"
+path = "/api/products/trust-gate/templates/{*repo}"
 description = "Delete TrustGate report templates."
 
 [[routes]]
@@ -173,7 +173,7 @@ description = "List TrustGate decision history."
 
 [[routes]]
 method = "GET"
-path = "/api/products/trust-gate/history/:id"
+path = "/api/products/trust-gate/history/{id}"
 description = "Read a TrustGate decision detail."
 
 [[routes]]

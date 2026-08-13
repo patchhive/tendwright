@@ -14,17 +14,17 @@ use std::collections::HashMap;
 pub fn router() -> Router<AppState> {
     Router::new()
         .route("/history", get(get_history))
-        .route("/history/:run_id", get(get_run))
+        .route("/history/{run_id}", get(get_run))
         .route("/runs", get(get_runs_contract))
-        .route("/runs/:run_id", get(get_run))
-        .route("/runs/:run_id/events", get(get_run_events))
-        .route("/runs/:run_id/artifacts", get(get_run_artifacts))
-        .route("/diff/:run_id/:issue_number", get(get_diff))
+        .route("/runs/{run_id}", get(get_run))
+        .route("/runs/{run_id}/events", get(get_run_events))
+        .route("/runs/{run_id}/artifacts", get(get_run_artifacts))
+        .route("/diff/{run_id}/{issue_number}", get(get_diff))
         .route("/leaderboard", get(get_leaderboard))
         .route("/rejected", get(get_rejected))
         .route("/pr-tracking", get(get_tracked_prs))
         .route("/pr-tracking/refresh", post(refresh_pr_body))
-        .route("/pr-tracking/:repo/:pr_number/refresh", post(refresh_pr))
+        .route("/pr-tracking/{repo}/{pr_number}/refresh", post(refresh_pr))
         .route("/github/rate-limit", get(rate_limit_check))
 }
 

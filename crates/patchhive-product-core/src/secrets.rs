@@ -1,5 +1,5 @@
 use aes_gcm::{
-    aead::{rand_core::RngCore, Aead, AeadCore, KeyInit, OsRng},
+    aead::{Aead, Generate, KeyInit},
     Aes256Gcm, Nonce,
 };
 use anyhow::{anyhow, Context, Result};
@@ -51,7 +51,7 @@ impl TokenProtector {
 
         let cipher =
             Aes256Gcm::new_from_slice(&key).context("failed to build PatchHive secret cipher")?;
-        let nonce = Aes256Gcm::generate_nonce(&mut OsRng);
+        let nonce = Nonce::generate();
         let ciphertext = cipher
             .encrypt(&nonce, plaintext.as_bytes())
             .map_err(|_| anyhow!("failed to encrypt PatchHive secret"))?;
@@ -95,8 +95,10 @@ impl TokenProtector {
 
         let cipher =
             Aes256Gcm::new_from_slice(&key).context("failed to build PatchHive secret cipher")?;
+        let nonce = Nonce::try_from(nonce_bytes.as_slice())
+            .map_err(|_| anyhow!("invalid encrypted PatchHive secret nonce length"))?;
         let plaintext = cipher
-            .decrypt(Nonce::from_slice(&nonce_bytes), ciphertext.as_ref())
+            .decrypt(&nonce, ciphertext.as_ref())
             .map_err(|_| anyhow!("failed to decrypt PatchHive secret"))?;
         String::from_utf8(plaintext).context("decrypted PatchHive secret was not utf-8")
     }
@@ -136,8 +138,7 @@ pub fn validate_encryption_secret(secret: &str) -> Result<()> {
 }
 
 pub fn generate_suite_bootstrap_secret() -> String {
-    let mut bytes = [0_u8; 32];
-    OsRng.fill_bytes(&mut bytes);
+    let bytes = <[u8; 32]>::generate();
     format!("ph-suite-{}", hex::encode(bytes))
 }
 

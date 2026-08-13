@@ -10,10 +10,10 @@ pub const STANDARD_SPECIALIST_ROUTE_PATHS: &[&str] = &[
     "/startup/checks",
     "/capabilities",
     "/runs",
-    "/runs/:id",
+    "/runs/{id}",
     "/overview",
     "/history",
-    "/history/:id",
+    "/history/{id}",
 ];
 
 pub struct SpecialistRouteHandlers<S> {

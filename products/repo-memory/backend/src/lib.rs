@@ -111,20 +111,20 @@ pub fn router() -> Router {
     .route("/failguard/guardrails", get(pipeline::failguard_guardrails))
     .route("/failguard/matches", get(pipeline::failguard_matches))
     .route(
-        "/failguard/candidates/:id/promote",
+        "/failguard/candidates/{id}/promote",
         post(pipeline::promote_failguard_candidate),
     )
     .route(
-        "/failguard/candidates/:id/dismiss",
+        "/failguard/candidates/{id}/dismiss",
         post(pipeline::dismiss_failguard_candidate),
     )
     .route(
-        "/failguard/candidates/:id/interpret",
+        "/failguard/candidates/{id}/interpret",
         post(pipeline::retry_failguard_interpretation),
     )
     .route("/context", post(pipeline::context))
-    .route("/history/:id/diff", get(pipeline::history_diff))
-    .route("/history/:id/prompt-pack", get(pipeline::prompt_pack))
+    .route("/history/{id}/diff", get(pipeline::history_diff))
+    .route("/history/{id}/prompt-pack", get(pipeline::prompt_pack))
     .route("/ingest", post(pipeline::ingest))
     .layer(middleware::from_fn(auth::auth_middleware))
     .layer(middleware::from_fn(rate_limit_middleware))

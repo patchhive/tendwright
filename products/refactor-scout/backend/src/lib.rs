@@ -85,7 +85,7 @@ pub fn router() -> Router {
         get(pipeline::scan_presets).post(pipeline::save_scan_preset),
     )
     .route(
-        "/presets/:name",
+        "/presets/{name}",
         axum::routing::delete(pipeline::delete_scan_preset),
     )
     .route(
@@ -93,11 +93,11 @@ pub fn router() -> Router {
         get(pipeline::scan_schedules).post(pipeline::save_scan_schedule),
     )
     .route(
-        "/schedules/:name",
+        "/schedules/{name}",
         axum::routing::delete(pipeline::delete_scan_schedule),
     )
     .route(
-        "/schedules/:name/run",
+        "/schedules/{name}/run",
         post(pipeline::run_scan_schedule_now),
     )
     .route(
@@ -105,7 +105,7 @@ pub fn router() -> Router {
         get(pipeline::repo_lists).post(pipeline::add_repo_list),
     )
     .route(
-        "/repo-lists/*repo",
+        "/repo-lists/{*repo}",
         axum::routing::delete(pipeline::remove_repo_list),
     )
     .route("/scan/local", post(pipeline::scan_local_repo))

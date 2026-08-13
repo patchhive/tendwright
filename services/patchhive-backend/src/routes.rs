@@ -1,7 +1,7 @@
-use std::sync::Arc;
+use std::{net::SocketAddr, sync::Arc};
 
 use axum::{
-    extract::{ConnectInfo, Path, State},
+    extract::{Path, State},
     http::StatusCode,
     response::{IntoResponse, Response},
     routing::{any, get, post},
@@ -13,8 +13,6 @@ use crate::{
     products,
     state::AppState,
 };
-use std::net::SocketAddr;
-
 pub fn router(state: Arc<AppState>) -> Router {
     let selection = state.config.product_selection.clone();
     let suite_routes = Router::new()
@@ -28,7 +26,7 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/api/products", get(products))
         .route("/api/products/runtime", get(products_runtime))
         .route(
-            "/api/products/:product_key/*unmatched_path",
+            "/api/products/{product_key}/{*unmatched_path}",
             any(product_route_not_mounted),
         )
         .route("/api/runs", get(runs))
@@ -131,7 +129,7 @@ async fn login(Json(body): Json<LoginRequest>) -> Response {
 /// set, and refuses once a key already exists so it cannot be used to reset auth.
 async fn generate_key(
     headers: axum::http::HeaderMap,
-    peer: Option<ConnectInfo<SocketAddr>>,
+    peer: patchhive_product_core::auth::ClientConnectInfo,
 ) -> Response {
     if crate::auth::auth_enabled() {
         return (
@@ -145,7 +143,7 @@ async fn generate_key(
             .into_response();
     }
 
-    let peer_addr = peer.map(|ConnectInfo(addr)| addr);
+    let peer_addr = patchhive_product_core::auth::peer_addr_from_connect_info(peer);
     if !crate::auth::bootstrap_request_allowed_from_peer(&headers, peer_addr) {
         return (
             StatusCode::FORBIDDEN,
@@ -284,9 +282,11 @@ async fn runs(State(state): State<Arc<AppState>>) -> Json<Vec<crate::models::Run
 /// Server-side aggregate of every mounted engine's run history.
 async fn products_runs(
     State(state): State<Arc<AppState>>,
-    peer: Option<ConnectInfo<SocketAddr>>,
+    peer: patchhive_product_core::auth::ClientConnectInfo,
 ) -> Response {
-    if !aggregate_access_allowed(peer.map(|ConnectInfo(addr)| addr)) {
+    if !aggregate_access_allowed(patchhive_product_core::auth::peer_addr_from_connect_info(
+        peer,
+    )) {
         return aggregate_forbidden();
     }
     Json(products::materialized_runs(
@@ -300,8 +300,10 @@ async fn products_runs(
     .into_response()
 }
 
-async fn products_runtime(peer: Option<ConnectInfo<SocketAddr>>) -> Response {
-    if !aggregate_access_allowed(peer.map(|ConnectInfo(addr)| addr)) {
+async fn products_runtime(peer: patchhive_product_core::auth::ClientConnectInfo) -> Response {
+    if !aggregate_access_allowed(patchhive_product_core::auth::peer_addr_from_connect_info(
+        peer,
+    )) {
         return aggregate_forbidden();
     }
     Json(hive_core::materialized_products()).into_response()

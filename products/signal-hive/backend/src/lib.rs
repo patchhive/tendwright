@@ -94,15 +94,15 @@ pub fn router() -> Router {
     })
     .route("/smoke", post(pipeline::smoke_check))
     .route("/presets", get(scan_presets).post(save_scan_preset))
-    .route("/presets/:name", delete(delete_scan_preset))
+    .route("/presets/{name}", delete(delete_scan_preset))
     .route("/schedules", get(scan_schedules).post(save_scan_schedule))
-    .route("/schedules/:name", delete(delete_scan_schedule))
-    .route("/schedules/:name/run", post(run_scan_schedule_now))
+    .route("/schedules/{name}", delete(delete_scan_schedule))
+    .route("/schedules/{name}/run", post(run_scan_schedule_now))
     .route("/repo-lists", get(repo_lists).post(add_repo_list))
-    .route("/repo-lists/*repo", delete(remove_repo_list))
+    .route("/repo-lists/{*repo}", delete(remove_repo_list))
     .route("/scan", post(pipeline::scan))
-    .route("/history/:id/timeline", get(pipeline::timeline))
-    .route("/history/:id/report", get(pipeline::report))
+    .route("/history/{id}/timeline", get(pipeline::timeline))
+    .route("/history/{id}/report", get(pipeline::report))
     .layer(middleware::from_fn(auth::auth_middleware))
     .layer(middleware::from_fn(rate_limit_middleware))
     .with_state(AppState::new())
@@ -131,7 +131,7 @@ async fn login(Json(body): Json<LoginBody>) -> Result<Json<serde_json::Value>, S
 
 async fn gen_key(
     headers: axum::http::HeaderMap,
-    peer: Option<patchhive_product_core::auth::ClientConnectInfo>,
+    peer: patchhive_product_core::auth::ClientConnectInfo,
 ) -> Result<Json<serde_json::Value>, patchhive_product_core::auth::JsonApiError> {
     if auth_enabled() {
         return Err(patchhive_product_core::auth::auth_already_configured_error());
@@ -149,7 +149,7 @@ async fn gen_key(
 
 async fn gen_service_token(
     headers: axum::http::HeaderMap,
-    peer: Option<patchhive_product_core::auth::ClientConnectInfo>,
+    peer: patchhive_product_core::auth::ClientConnectInfo,
 ) -> Result<Json<serde_json::Value>, patchhive_product_core::auth::JsonApiError> {
     if service_auth_enabled() {
         return Err(patchhive_product_core::auth::service_auth_already_configured_error());
@@ -168,7 +168,7 @@ async fn gen_service_token(
 
 async fn rotate_service_token(
     headers: axum::http::HeaderMap,
-    peer: Option<patchhive_product_core::auth::ClientConnectInfo>,
+    peer: patchhive_product_core::auth::ClientConnectInfo,
 ) -> Result<Json<serde_json::Value>, patchhive_product_core::auth::JsonApiError> {
     if !service_auth_enabled() {
         return Err(patchhive_product_core::auth::service_auth_not_configured_error());

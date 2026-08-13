@@ -113,7 +113,7 @@ description = "List ReleaseSentry assessments."
 
 [[routes]]
 method = "GET"
-path = "/api/products/release-sentry/runs/:id"
+path = "/api/products/release-sentry/runs/{id}"
 description = "Read a ReleaseSentry assessment detail."
 
 [[routes]]
@@ -128,5 +128,5 @@ description = "List ReleaseSentry release check history."
 
 [[routes]]
 method = "GET"
-path = "/api/products/release-sentry/history/:id"
+path = "/api/products/release-sentry/history/{id}"
 description = "Read a ReleaseSentry release check detail."

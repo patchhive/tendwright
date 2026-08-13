@@ -110,7 +110,7 @@ pub async fn login(Json(body): Json<LoginBody>) -> Result<Json<serde_json::Value
 
 pub async fn gen_key(
     headers: HeaderMap,
-    peer: Option<patchhive_product_core::auth::ClientConnectInfo>,
+    peer: patchhive_product_core::auth::ClientConnectInfo,
 ) -> Result<Json<serde_json::Value>, patchhive_product_core::auth::JsonApiError> {
     if auth_enabled() {
         return Err(patchhive_product_core::auth::auth_already_configured_error());
@@ -128,7 +128,7 @@ pub async fn gen_key(
 
 pub async fn gen_service_token(
     headers: HeaderMap,
-    peer: Option<patchhive_product_core::auth::ClientConnectInfo>,
+    peer: patchhive_product_core::auth::ClientConnectInfo,
 ) -> Result<Json<serde_json::Value>, patchhive_product_core::auth::JsonApiError> {
     if service_auth_enabled() {
         return Err(patchhive_product_core::auth::service_auth_already_configured_error());
@@ -147,7 +147,7 @@ pub async fn gen_service_token(
 
 pub async fn rotate_service_token(
     headers: HeaderMap,
-    peer: Option<patchhive_product_core::auth::ClientConnectInfo>,
+    peer: patchhive_product_core::auth::ClientConnectInfo,
 ) -> Result<Json<serde_json::Value>, patchhive_product_core::auth::JsonApiError> {
     if !service_auth_enabled() {
         return Err(patchhive_product_core::auth::service_auth_not_configured_error());
@@ -293,7 +293,7 @@ pub async fn remove_repo_list(AxumPath(repo): AxumPath<String>) -> JsonResult<se
 
 pub async fn scan_local_repo(
     State(state): State<AppState>,
-    peer: Option<patchhive_product_core::auth::ClientConnectInfo>,
+    peer: patchhive_product_core::auth::ClientConnectInfo,
     Json(request): Json<ScanRequest>,
 ) -> JsonResult<RefactorScanResult> {
     let peer_addr = patchhive_product_core::auth::peer_addr_from_connect_info(peer);
@@ -350,7 +350,7 @@ pub async fn scan_schedules() -> Json<serde_json::Value> {
 
 pub async fn save_scan_schedule(
     State(state): State<AppState>,
-    peer: Option<patchhive_product_core::auth::ClientConnectInfo>,
+    peer: patchhive_product_core::auth::ClientConnectInfo,
     Json(mut body): Json<
         patchhive_product_core::scheduling::SaveProductScheduleRequest<ScanRequest>,
     >,
@@ -426,7 +426,7 @@ pub async fn delete_scan_schedule(
 
 pub async fn run_scan_schedule_now(
     State(state): State<AppState>,
-    peer: Option<patchhive_product_core::auth::ClientConnectInfo>,
+    peer: patchhive_product_core::auth::ClientConnectInfo,
     AxumPath(name): AxumPath<String>,
 ) -> JsonResult<RefactorScanResult> {
     let schedule = db::get_schedule(&name)

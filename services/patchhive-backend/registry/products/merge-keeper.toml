@@ -97,7 +97,7 @@ description = "List MergeKeeper assessments."
 
 [[routes]]
 method = "GET"
-path = "/api/products/merge-keeper/runs/:id"
+path = "/api/products/merge-keeper/runs/{id}"
 description = "Read a MergeKeeper assessment detail."
 
 [[routes]]
@@ -112,7 +112,7 @@ description = "List MergeKeeper assessment history."
 
 [[routes]]
 method = "GET"
-path = "/api/products/merge-keeper/history/:id"
+path = "/api/products/merge-keeper/history/{id}"
 description = "Read a MergeKeeper assessment detail."
 
 [[routes]]

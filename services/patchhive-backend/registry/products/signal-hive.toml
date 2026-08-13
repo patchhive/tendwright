@@ -95,7 +95,7 @@ description = "List SignalHive run summaries."
 
 [[routes]]
 method = "GET"
-path = "/api/products/signal-hive/runs/:id"
+path = "/api/products/signal-hive/runs/{id}"
 description = "Read a SignalHive run detail."
 
 [[routes]]
@@ -115,7 +115,7 @@ description = "Save a SignalHive scan preset."
 
 [[routes]]
 method = "DELETE"
-path = "/api/products/signal-hive/presets/:name"
+path = "/api/products/signal-hive/presets/{name}"
 description = "Delete a SignalHive scan preset."
 
 [[routes]]
@@ -130,12 +130,12 @@ description = "Save a SignalHive scan schedule."
 
 [[routes]]
 method = "DELETE"
-path = "/api/products/signal-hive/schedules/:name"
+path = "/api/products/signal-hive/schedules/{name}"
 description = "Delete a SignalHive scan schedule."
 
 [[routes]]
 method = "POST"
-path = "/api/products/signal-hive/schedules/:name/run"
+path = "/api/products/signal-hive/schedules/{name}/run"
 description = "Run a SignalHive schedule immediately."
 
 [[routes]]
@@ -150,7 +150,7 @@ description = "Add a SignalHive repo discovery control."
 
 [[routes]]
 method = "DELETE"
-path = "/api/products/signal-hive/repo-lists/*repo"
+path = "/api/products/signal-hive/repo-lists/{*repo}"
 description = "Remove a SignalHive repo discovery control."
 
 [[routes]]
@@ -165,17 +165,17 @@ description = "List SignalHive scan history."
 
 [[routes]]
 method = "GET"
-path = "/api/products/signal-hive/history/:id"
+path = "/api/products/signal-hive/history/{id}"
 description = "Read a SignalHive scan detail."
 
 [[routes]]
 method = "GET"
-path = "/api/products/signal-hive/history/:id/timeline"
+path = "/api/products/signal-hive/history/{id}/timeline"
 description = "Read a SignalHive scan timeline."
 
 [[routes]]
 method = "GET"
-path = "/api/products/signal-hive/history/:id/report"
+path = "/api/products/signal-hive/history/{id}/report"
 description = "Read a SignalHive scan report."
 
 [[routes]]

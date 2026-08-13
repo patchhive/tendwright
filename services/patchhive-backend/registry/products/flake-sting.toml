@@ -98,7 +98,7 @@ description = "List FlakeSting scans."
 
 [[routes]]
 method = "GET"
-path = "/api/products/flake-sting/runs/:id"
+path = "/api/products/flake-sting/runs/{id}"
 description = "Read a FlakeSting scan detail."
 
 [[routes]]
@@ -113,5 +113,5 @@ description = "List FlakeSting scan history."
 
 [[routes]]
 method = "GET"
-path = "/api/products/flake-sting/history/:id"
+path = "/api/products/flake-sting/history/{id}"
 description = "Read a FlakeSting scan detail."

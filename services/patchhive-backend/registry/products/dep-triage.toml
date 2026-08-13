@@ -98,7 +98,7 @@ description = "List DepTriage runs."
 
 [[routes]]
 method = "GET"
-path = "/api/products/dep-triage/runs/:id"
+path = "/api/products/dep-triage/runs/{id}"
 description = "Read a DepTriage scan detail."
 
 [[routes]]
@@ -113,5 +113,5 @@ description = "List DepTriage scan history."
 
 [[routes]]
 method = "GET"
-path = "/api/products/dep-triage/history/:id"
+path = "/api/products/dep-triage/history/{id}"
 description = "Read a DepTriage scan detail."
