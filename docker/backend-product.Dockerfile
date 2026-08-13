@@ -1,4 +1,6 @@
-FROM rust:1.87-slim AS builder
+ARG RUST_IMAGE=rust:1.97.1-bookworm@sha256:77fac8b98f9f46062bb680b6d25d5bcaabfc400143952ebc572e924bcbedc3fa
+
+FROM ${RUST_IMAGE} AS builder
 ARG PRODUCT_SLUG
 ARG BINARY_NAME
 WORKDIR /app
