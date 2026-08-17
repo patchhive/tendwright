@@ -35,7 +35,7 @@
     "copilot"
   ],
   "dependencies": {
-    "@github/copilot": "^1.0.78",
+    "@github/copilot": "^1.0.80",
     "@github/copilot-sdk": "^0.2.1",
     "@openai/codex-sdk": "^0.147.0"
   }
