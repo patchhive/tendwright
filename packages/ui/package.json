@@ -16,7 +16,7 @@
     "./theme": "./src/theme.jsx"
   },
   "dependencies": {
-    "lucide-react": "^0.575.0"
+    "lucide-react": "^1.31.0"
   },
   "peerDependencies": {
     "react": ">=18"
